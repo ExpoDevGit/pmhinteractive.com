@@ -55,37 +55,3 @@ const ro = new IntersectionObserver((entries) => {
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
-const ticker = document.querySelector('.ticker');
-if (ticker) ticker.innerHTML += ticker.innerHTML;
-
-// ── CONTACT FORM (Formspree) ──
-const form = document.getElementById('contactForm');
-if (form) {
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const status = document.getElementById('formStatus');
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.textContent = 'SENDING...';
-
-    // ⬇  Replace YOUR_FORM_ID with your Formspree form ID
-    const FORMSPREE_ID = 'YOUR_FORM_ID';
-
-    try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-        method: 'POST', body: new FormData(form),
-        headers: { Accept: 'application/json' }
-      });
-      if (res.ok) {
-        status.textContent = '✓ Message sent! We\'ll get back to you soon.';
-        status.className = 'form-status success';
-        form.reset();
-      } else throw new Error();
-    } catch {
-      status.textContent = '✗ Something went wrong. Try emailing us directly.';
-      status.className = 'form-status error';
-    }
-    btn.disabled = false;
-    btn.textContent = 'SEND MESSAGE';
-  });
-}
