@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Obsessive Shadow — PMH Interactive</title>
+  <meta name="description" content="The Obsessive Shadow — a survival horror franchise by Pablo Heckman. Games, film, Fortnite, and more across PS5, PSVR2, Meta Quest, Steam, and Xbox." />
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../favicon.ico" />
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
+  <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet" />
+  <style>
+
+    /* ════════════════════════════════════════════
+       VCR FONT — entire page
+    ════════════════════════════════════════════ */
+    body.tos-page {
+      font-family: 'VCR OSD Mono', 'Share Tech Mono', monospace;
+    }
+    body.tos-page h1, body.tos-page h2, body.tos-page h3, body.tos-page h4,
+    body.tos-page p, body.tos-page a, body.tos-page span, body.tos-page div,
+    body.tos-page li, body.tos-page button, body.tos-page label,
+    body.tos-page code, body.tos-page nav {
+      font-family: 'VCR OSD Mono', 'Share Tech Mono', monospace;
+    }
+
+    /* ════════════════════════════════════════════
+       COLORS
+    ════════════════════════════════════════════ */
+    :root {
+      --red:         #c0392b;
+      --red-bright:  #e74c3c;
+      --red-dim:     #7b1f16;
+      --red-glow:    0 0 40px rgba(192, 57, 43, 0.5);
+      --red-subtle:  rgba(192, 57, 43, 0.08);
+      --red-border:  rgba(192, 57, 43, 0.22);
+      /* periwinkle — used everywhere except ch2 */
+      --ash:         #88a5db;
+      --ash-dim:     rgba(136,165,219,0.55);
+      --ash-subtle:  rgba(136,165,219,0.08);
+      --ash-border:  rgba(136,165,219,0.22);
+    }
+
+  /* ════════════════════════════════════════════
+     VHS EFFECT — lean, mobile-safe
+     Static layers: CSS only (zero JS cost)
+     Dynamic layers: canvas at 24fps max, paused off-screen
+  ════════════════════════════════════════════ */
+
+  /* Canvas handles only grain + rare glitch — NO blend mode */
+  #vhs-canvas {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9000;
+    pointer-events: none;
+    opacity: 0.55;
+    /* NO mix-blend-mode — that forces full page composite every frame */
+    /* NO will-change:contents — wrong hint, wastes VRAM */
+  }
+
+  /* ── Scanlines — pure CSS, zero paint cost ── */
+  #vhs-scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 9001;
+    pointer-events: none;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,0.10) 0px,
+      rgba(0,0,0,0.10) 1px,
+      transparent      1px,
+      transparent      3px
+    );
+    transform: translateZ(0);
+  }
+
+  /* ── Rolling scan bar — CSS transform only, compositor thread ── */
+  #vhs-scanbar {
+    position: fixed;
+    left: 0; right: 0;
+    height: 120px;
+    z-index: 9002;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent            0%,
+      rgba(255,255,255,0.009) 40%,
+      rgba(255,255,255,0.022) 50%,
+      rgba(255,255,255,0.009) 60%,
+      transparent            100%
+    );
+    animation: vhsScanBar 10s linear infinite;
+    will-change: transform;
+  }
+  @keyframes vhsScanBar {
+    from { transform: translateY(-120px); }
+    to   { transform: translateY(calc(100vh + 120px)); }
+  }
+
+  /* ── Chromatic aberration via CSS filter on a fixed layer ── */
+  body.tos-page::before {
+    content: '';
+    position: fixed;
+    inset: -2px;
+    z-index: 8999;
+    pointer-events: none;
+    background: transparent;
+    box-shadow:
+      -1px 0 0 0 rgba(255, 30, 30,  0.025),
+       1px 0 0 0 rgba(30,  60, 255, 0.025);
+    transform: translateZ(0);
+    /* NO will-change here — static element */
+  }
+
+  /* ── Vignette ── */
+  #vhs-vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 9003;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 110% 110% at 50% 50%,
+      transparent      42%,
+      rgba(0,0,0,0.22) 70%,
+      rgba(0,0,0,0.60) 100%
+    );
+    transform: translateZ(0);
+  }
+
+  /* ── Kill all effects on reduced-motion or small screens ── */
+  @media (prefers-reduced-motion: reduce) {
+    #vhs-canvas, #vhs-scanbar { display: none; }
+  }
+  @media (max-width: 768px) {
+    /* On mobile keep scanlines + vignette (CSS only), kill canvas + scanbar */
+    #vhs-canvas, #vhs-scanbar { display: none; }
+  }
+
+    /* ════════════════════════════════════════════
+       HERO
+    ════════════════════════════════════════════ */
+    .tos-hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      text-align: center;
+      overflow: hidden; padding: 0;
+    }
+    .tos-hero-video {
+      position: absolute; inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; z-index: 0;
+      opacity: 0.92;
+      /* NO filter — CSS filter on video triggers repaint every frame */
+    }
+    /* Tint overlay replaces the filter entirely — static, zero cost */
+    .tos-hero-video-tint {
+      position: absolute; inset: 0; z-index: 1;
+      background: rgba(10,6,18,0.18); /* slight desaturating dark tint */
+      pointer-events: none;
+    }
+    .tos-hero-overlay {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom,
+        rgba(14,14,14,0.55) 0%,
+        rgba(14,14,14,0.0)  28%,
+        rgba(14,14,14,0.0)  65%,
+        rgba(14,14,14,0.9)  90%,
+        #0e0e0e 100%
+      ),
+      radial-gradient(ellipse 80% 65% at 50% 20%, rgba(136,165,219,0.1) 0%, transparent 65%);
+    }
+    .tos-hero-content {
+      position: relative; z-index: 3;
+      max-width: 900px; padding: 0 2rem;
+      display: flex; flex-direction: column; align-items: center;
+    }
+    .tos-logo-img {
+      width: min(620px, 85vw); height: auto; display: block;
+      filter: drop-shadow(0 0 24px rgba(136,165,219,0.3));
+      margin-bottom: 1.6rem;
+      animation: heroDrop 0.9s cubic-bezier(.22,1,.36,1) both;
+      position: relative;
+      z-index: 4;
+    }
+
+    /* ── Contain sections to stop style recalc propagation ── */
+    .tos-chapter, .tos-special, .tos-sep, .tos-merch {
+      contain: layout style paint;
+    }
+    @keyframes heroDrop {
+      from { opacity:0; transform:translateY(-14px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    #tos-fallback-title {
+      display: none;
+      font-size: clamp(2.8rem,9vw,7rem);
+      line-height: 1; color: #fff;
+      text-shadow: 0 0 40px rgba(0,0,0,0.98);
+      margin-bottom: 1.6rem;
+      animation: heroDrop 0.9s cubic-bezier(.22,1,.36,1) both;
+      letter-spacing: 0.04em;
+    }
+    .tos-hero-byline {
+      font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
+      color: var(--ash-dim);
+      margin-bottom: 1.6rem;
+      display: flex; align-items: center; gap: 1.2rem;
+      animation: fadeUp 0.7s 0.25s ease both;
+    }
+    .tos-hero-byline::before,
+    .tos-hero-byline::after { content:''; width:36px; height:1px; background:var(--ash-border); }
+    .tos-hero-tagline {
+      font-size: clamp(0.78rem, 1.8vw, 0.92rem);
+      color: var(--text-mid); max-width: 500px;
+      line-height: 2; margin-bottom: 2.6rem;
+      text-shadow: 0 1px 12px rgba(0,0,0,0.98);
+      animation: fadeUp 0.7s 0.4s ease both;
+    }
+    .tos-hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: fadeUp 0.7s 0.55s ease both;
+    }
+    .btn-ash {
+      background: rgba(136,165,219,0.1);
+      color: #d8e4ed;
+      border: 1px solid var(--ash-border);
+    }
+    .btn-ash:hover {
+      background: rgba(136,165,219,0.2);
+      border-color: var(--ash); color: #fff;
+      transform: translateY(-2px);
+    }
+
+    .tos-platform-strip {
+      position: absolute; bottom:0; left:0; right:0; z-index:3;
+      display: flex; align-items: center; justify-content: center;
+      gap: 2.5rem; padding: 1rem 2rem;
+      background: rgba(10,10,14,0.9);
+      border-top: 1px solid var(--ash-border);
+      flex-wrap: wrap;
+    }
+    .platform-item {
+      font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-dim);
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+    .platform-item .dot { width:5px; height:5px; border-radius:50%; background:var(--ash); flex-shrink:0; }
+    .platform-item.live { color: var(--text-mid); }
+
+    /* ════════════════════════════════════════════
+       DIVIDERS
+    ════════════════════════════════════════════ */
+    .tos-sep {
+      position: relative; height: 1px;
+      background: linear-gradient(to right, transparent, var(--ash-border) 30%, var(--ash-border) 70%, transparent);
+    }
+    .tos-sep.red-sep {
+      background: linear-gradient(to right, transparent, var(--red-border) 30%, var(--red-border) 70%, transparent);
+    }
+    .tos-sep-icon {
+      position: absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
+      background: var(--bg); padding: 0 1rem;
+      font-size: 0.8rem; color: var(--ash-dim);
+    }
+    .tos-sep.red-sep .tos-sep-icon { background: var(--bg2); color: var(--red-dim); }
+
+    /* ════════════════════════════════════════════
+       CHAPTER SECTIONS
+    ════════════════════════════════════════════ */
+    .tos-chapter { position:relative; overflow:hidden; background:var(--bg); }
+    .tos-chapter.alt { background: var(--bg2); }
+
+    .chapter-ambient {
+      position:absolute; inset:0; width:100%; height:100%;
+      object-fit:cover; z-index:0;
+      opacity:0.55;
+      /* NO filter on video — use .chapter-ambient-fade overlay for tinting */
+    }
+    .chapter-ambient-fade {
+      position:absolute; inset:0; z-index:1;
+      background: linear-gradient(to bottom, var(--bg) 0%, rgba(14,14,14,0.04) 15%, rgba(14,14,14,0.04) 85%, var(--bg) 100%);
+    }
+    .tos-chapter.alt .chapter-ambient-fade {
+      background: linear-gradient(to bottom, var(--bg2) 0%, rgba(20,20,20,0.04) 15%, rgba(20,20,20,0.04) 85%, var(--bg2) 100%);
+    }
+
+    .chapter-body {
+      position:relative; z-index:2;
+      max-width:1240px; margin:0 auto; padding:8rem 2.5rem;
+      display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+    }
+    .tos-chapter.alt .chapter-body { direction:rtl; }
+    .tos-chapter.alt .chapter-body > * { direction:ltr; }
+
+    /* art frame */
+    .ch-art { position:relative; }
+    .ch-art-frame {
+      position:relative; overflow:hidden; background:#000;
+    }
+    .ch-art-frame::before {
+      content: attr(data-num);
+      position:absolute; bottom:-0.05em; right:0.05em;
+      font-size:10rem; line-height:1;
+      color: rgba(255,255,255,0.028);
+      pointer-events:none; z-index:0;
+    }
+    .ch-art-frame img {
+      width:100%; height:100%; object-fit:cover; object-position:top center;
+      display:block; opacity:0.88;
+      transition: transform 0.6s cubic-bezier(.22,1,.36,1), opacity 0.3s;
+      position:relative; z-index:1;
+    }
+    .ch-art-frame:hover img { transform:scale(1.04); opacity:1; }
+    .ch1-frame { border:1px solid var(--ash-border); }
+    .ch2-frame { border:1px solid var(--red-border); }
+
+    .ch-corner { position:absolute; width:20px; height:20px; z-index:2; }
+    .ch-corner.tl { top:-1px;    left:-1px;  border-top:2px solid currentColor; border-left:2px solid currentColor; }
+    .ch-corner.tr { top:-1px;    right:-1px; border-top:2px solid currentColor; border-right:2px solid currentColor; }
+    .ch-corner.bl { bottom:-1px; left:-1px;  border-bottom:2px solid currentColor; border-left:2px solid currentColor; }
+    .ch-corner.br { bottom:-1px; right:-1px; border-bottom:2px solid currentColor; border-right:2px solid currentColor; }
+    .c-ash { color:var(--ash); }
+    .c-red  { color:var(--red); }
+
+    /* chapter copy */
+    .ch-copy { display:flex; flex-direction:column; }
+
+    .ch-eyebrow {
+      font-size:0.65rem; letter-spacing:0.28em; text-transform:uppercase; margin-bottom:0.9rem;
+    }
+    .ch-eyebrow.ash { color:var(--ash-dim); }
+    .ch-eyebrow.red { color:var(--red); }
+
+    .ch-heading {
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height:1.06; margin-bottom:0.3rem; letter-spacing:0.02em;
+    }
+    .ch-heading.ash { color:#d8e4ed; }
+    .ch-heading.red { color:#fff; }
+    .a-ash { color:var(--ash); }
+    .a-red  { color:var(--red); }
+
+    .ch-sub {
+      font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase;
+      margin-bottom:1.5rem; padding-bottom:1.4rem;
+    }
+    .ch-sub.ash { color:var(--text-dim); border-bottom:1px solid var(--ash-border); }
+    .ch-sub.red { color:rgba(192,57,43,0.55); border-bottom:1px solid var(--red-border); }
+
+    .ch-status {
+      display:inline-flex; align-items:center; gap:0.5rem;
+      font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
+      padding:0.28rem 0.85rem; margin-bottom:1.5rem; align-self:flex-start;
+    }
+    .ch-status::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
+    .ch-status.live { color:var(--teal); background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.28); }
+    .ch-status.live::before { animation:pulse 2s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
+    .ch-status.demo { color:#ffa040; background:rgba(255,160,64,0.08); border:1px solid rgba(255,160,64,0.28); }
+
+    .ch-desc { color:var(--text-mid); font-size:0.88rem; line-height:1.9; margin-bottom:1rem; }
+    .ch-desc strong { color:var(--text); }
+
+    .ch-tags { display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:2rem; }
+    .ch-tag { font-size:0.65rem; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; }
+    .ch-tag.ash { border:1px solid var(--ash-border); color:var(--ash-dim); background:var(--ash-subtle); }
+    .ch-tag.red  { border:1px solid var(--red-border); color:rgba(192,57,43,0.65); background:var(--red-subtle); }
+
+    .ch-actions { display:flex; flex-direction:column; gap:0.65rem; }
+
+    .ch-trailer-btn {
+      display:inline-flex; align-items:center; gap:0.55rem;
+      font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase;
+      text-decoration:none; padding:0.62rem 1.2rem; transition:all 0.22s;
+      align-self:flex-start;
+    }
+    .ch-trailer-btn.ash {
+      border:1px solid var(--ash-border); color:var(--ash); background:var(--ash-subtle);
+    }
+    .ch-trailer-btn.ash:hover { background:rgba(136,165,219,0.16); border-color:var(--ash); color:#fff; transform:translateX(2px); }
+    .ch-trailer-btn.red {
+      border:1px solid rgba(192,57,43,0.45); color:#e06060; background:rgba(192,57,43,0.09);
+    }
+    .ch-trailer-btn.red:hover { background:rgba(192,57,43,0.2); border-color:var(--red); color:#ff8888; transform:translateX(2px); }
+    .ch-trailer-btn .tri {
+      width:0; height:0; border-style:solid;
+      border-width:5px 0 5px 9px;
+      border-color:transparent transparent transparent currentColor; flex-shrink:0;
+    }
+
+    .ch-stores { display:flex; flex-wrap:wrap; gap:0.5rem; }
+    .ch-store-btn {
+      display:inline-flex; align-items:center; gap:0.45rem;
+      font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase;
+      text-decoration:none; padding:0.6rem 1.1rem;
+      border:1px solid var(--border-dim); color:var(--text-mid);
+      background:rgba(255,255,255,0.03); transition:all 0.2s; white-space:nowrap;
+    }
+    .ch-store-btn:hover { border-color:rgba(255,255,255,0.18); color:#fff; background:rgba(255,255,255,0.07); transform:translateY(-1px); }
+    .ch-store-btn.a-ash { border-color:var(--ash-border); color:var(--ash); background:var(--ash-subtle); }
+    .ch-store-btn.a-ash:hover { background:rgba(136,165,219,0.15); border-color:var(--ash); color:#fff; }
+    .ch-store-btn.a-red { border-color:rgba(0,200,150,0.25); color:var(--teal); background:rgba(0,200,150,0.06); }
+    .ch-store-btn.a-red:hover { background:rgba(0,200,150,0.14); border-color:rgba(0,200,150,0.45); }
+    .ch-store-btn.disabled { opacity:0.35; cursor:default; pointer-events:none; }
+    .ch-store-btn svg { width:13px; height:13px; fill:currentColor; flex-shrink:0; }
+
+    /* ════════════════════════════════════════════
+       SPECIAL SECTIONS
+    ════════════════════════════════════════════ */
+    .tos-special { position:relative; overflow:hidden; }
+    .tos-special.bg2 { background:var(--bg2); }
+    .tos-special.bg  { background:var(--bg); }
+    .tos-special::before {
+      content:attr(data-watermark);
+      position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:clamp(7rem,18vw,16rem);
+      color:rgba(255,255,255,0.016);
+      letter-spacing:-0.04em; white-space:nowrap;
+      pointer-events:none; z-index:0; line-height:1;
+    }
+    .special-body {
+      position:relative; z-index:1;
+      max-width:1240px; margin:0 auto; padding:8rem 2.5rem;
+      display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+    }
+    .tos-special.flip .special-body { direction:rtl; }
+    .tos-special.flip .special-body > * { direction:ltr; }
+
+    .special-media {
+      position:relative; background:#000;
+      border:1px solid var(--ash-border); overflow:hidden;
+    }
+    .special-media img {
+      width:100%; display:block;
+      opacity:0.88;
+      transition: transform 0.6s cubic-bezier(.22,1,.36,1), opacity 0.3s;
+    }
+    .special-media:hover img { transform:scale(1.04); opacity:1; }
+
+    .special-placeholder {
+      aspect-ratio:16/9;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:0.8rem; font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase;
+      color:var(--text-dim); padding:3rem; text-align:center;
+    }
+    .special-placeholder .sp-icon { font-size:2.5rem; color:var(--ash-border); }
+
+    .island-code {
+      display:inline-flex; align-items:center; gap:0.7rem;
+      font-size:0.82rem; letter-spacing:0.14em;
+      padding:0.6rem 1.2rem;
+      background:rgba(80,200,240,0.07); border:1px solid rgba(80,200,240,0.2);
+      color:#78d8f8; cursor:copy; transition:background 0.2s;
+      user-select:all; margin-bottom:0.6rem;
+    }
+    .island-code:hover { background:rgba(80,200,240,0.14); }
+    .island-code::before { content:'◈'; opacity:0.7; }
+    .island-hint { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:1.6rem; display:block; }
+
+    .special-links { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem; }
+    .sp-btn {
+      display:inline-flex; align-items:center; gap:0.45rem;
+      font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase;
+      text-decoration:none; padding:0.62rem 1.15rem;
+      border:1px solid var(--ash-border); color:var(--ash-dim); background:var(--ash-subtle);
+      transition:all 0.2s;
+    }
+    .sp-btn:hover { border-color:var(--ash); color:#fff; background:rgba(136,165,219,0.15); transform:translateY(-1px); }
+    .sp-btn.fn { border-color:rgba(80,200,240,0.25); color:#78d8f8; background:rgba(80,200,240,0.06); }
+    .sp-btn.fn:hover { background:rgba(80,200,240,0.14); border-color:rgba(80,200,240,0.45); }
+
+    .watch-film-btn {
+      display:inline-flex; align-items:center; gap:0.55rem;
+      font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase;
+      text-decoration:none; padding:0.62rem 1.2rem;
+      border:1px solid rgba(0,200,150,0.35); color:var(--teal); background:rgba(0,200,150,0.07);
+      transition:all 0.22s;
+    }
+    .watch-film-btn:hover { background:rgba(0,200,150,0.16); border-color:var(--teal); transform:translateX(2px); }
+    .watch-film-btn .tri {
+      width:0; height:0; border-style:solid;
+      border-width:5px 0 5px 9px;
+      border-color:transparent transparent transparent currentColor; flex-shrink:0;
+    }
+
+    /* ════════════════════════════════════════════
+       MERCH
+    ════════════════════════════════════════════ */
+    .tos-merch {
+      position:relative; overflow:hidden; padding:6rem 2rem; text-align:center;
+      border-top:1px solid var(--ash-border); border-bottom:1px solid var(--ash-border);
+      background:var(--bg2);
+    }
+    .tos-merch::after {
+      content:'MERCH'; position:absolute; top:50%; left:50%;
+      transform:translate(-50%,-50%);
+      font-size:clamp(5rem,18vw,13rem);
+      color:rgba(255,255,255,0.018);
+      letter-spacing:-0.04em; white-space:nowrap; pointer-events:none; line-height:1; z-index:0;
+    }
+    .tos-merch-inner { position:relative; z-index:1; max-width:520px; margin:0 auto; }
+    .tos-merch-inner h2 { font-size:clamp(1.6rem,4vw,2.6rem); color:#fff; margin-bottom:0.9rem; line-height:1.2; }
+    .tos-merch-inner p  { color:var(--text-mid); margin-bottom:2rem; font-size:0.88rem; line-height:1.85; }
+
+    /* ── Contain: already set above in logo section ── */
+    /* ── No will-change on videos — browser handles decode layers ── */
+    @media (max-width: 960px) {
+      .chapter-body, .special-body { grid-template-columns:1fr; gap:3rem; padding:5rem 1.5rem; }
+      .tos-chapter.alt .chapter-body, .tos-special.flip .special-body { direction:ltr; }
+      .tos-platform-strip { gap:1.5rem; }
+    }
+    @media (max-width: 640px) {
+      .chapter-body, .special-body { padding:4rem 1rem; gap:2rem; }
+      .ch-stores { flex-direction:column; }
+      .ch-store-btn, .sp-btn, .watch-film-btn, .ch-trailer-btn { width:100%; justify-content:center; align-self:stretch; }
+      .tos-platform-strip { flex-direction:column; gap:0.6rem; align-items:flex-start; padding:1rem 1.5rem; }
+      .tos-hero-content { padding:0 1rem; }
+    }
+  </style>
+</head>
+<body class="tos-page">
+
+<!-- VHS effect layers -->
+<canvas id="vhs-canvas" aria-hidden="true"></canvas>
+<div id="vhs-scanlines" aria-hidden="true"></div>
+<div id="vhs-scanbar" aria-hidden="true"></div>
+<div id="vhs-vignette" aria-hidden="true"></div>
+
+<!-- ── NAVBAR ── -->
+<nav id="navbar">
+  <a href="../index.html" class="nav-logo">
+    <img src="../PMH_Interactive_ICON_1.png" alt="PMH Interactive" class="nav-logo-img" />
+    PMH <span>&nbsp;Interactive</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="../index.html#about">About</a></li>
+    <li><a href="games.html">Games</a></li>
+    <li><a href="obsessive-shadow.html" style="color:var(--teal);">The Obsessive Shadow</a></li>
+    <li><a href="../index.html#socials">Socials</a></li>
+    <li><a href="../index.html#contact">Contact</a></li>
+    <li><a href="privacy.html">Privacy</a></li>
+    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn-merch">Merch</a></li>
+  </ul>
+  <div class="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu">
+  <a href="../index.html#about">About</a>
+  <a href="games.html">Games</a>
+  <a href="obsessive-shadow.html" style="color:var(--teal);">The Obsessive Shadow</a>
+  <a href="../index.html#socials">Socials</a>
+  <a href="../index.html#contact">Contact</a>
+  <a href="privacy.html">Privacy</a>
+  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="merch-link">Merch 🛒</a>
+</div>
+
+
+<!-- ══════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════ -->
+<section class="tos-hero" id="top">
+  <!-- hero bg video: drop tos-hero-bg.mp4 in the pmh-interactive/ root folder -->
+  <video class="tos-hero-video" autoplay muted loop playsinline preload="auto">
+    <source src="../tos-hero-bg.mp4" type="video/mp4" />
+  </video>
+  <div class="tos-hero-video-tint"></div>
+  <div class="tos-hero-overlay"></div>
+
+  <div class="tos-hero-content">
+    <!-- PNG logo: images/tos-logo.png — falls back to text if missing -->
+    <img
+      src="../images/tos-logo.png"
+      alt="The Obsessive Shadow"
+      class="tos-logo-img"
+      onload="this.style.opacity='1';"
+      onerror="this.style.display='none';document.getElementById('tos-fallback-title').style.display='block';"
+      style="opacity:1;"
+    />
+    <div id="tos-fallback-title">THE<br/>OBSESSIVE<br/>SHADOW</div>
+
+    <div class="tos-hero-byline">Created by Pablo Heckman</div>
+    <p class="tos-hero-tagline">
+      A survival horror franchise spanning video games,<br/>
+      virtual reality, Fortnite, and film.<br/>
+      The darkness is always watching.
+    </p>
+    <div class="tos-hero-cta">
+      <a href="#chapter1" class="btn btn-ash">[ Explore ]</a>
+      <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn btn-outline">Official Merch &rarr;</a>
+    </div>
+  </div>
+
+  </section>
+
+
+<!-- ══════════════════════════════════════════════
+     CHAPTER 1
+══════════════════════════════════════════════ -->
+<section class="tos-chapter" id="chapter1">
+  <!-- ambient video: tos-ch1-bg.mp4 in root folder -->
+  <video class="chapter-ambient" autoplay muted loop playsinline preload="none">
+    <source src="../tos-ch1-bg.mp4" type="video/mp4" />
+  </video>
+  <div class="chapter-ambient-fade"></div>
+
+  <div class="chapter-body">
+    <div class="ch-art reveal">
+      <div class="ch-art-frame ch1-frame" data-num="I">
+        <img src="../images/tos1-cover.jpg" alt="The Obsessive Shadow cover art" />
+      </div>
+      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
+      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+    </div>
+
+    <div class="ch-copy reveal d1">
+      <div class="ch-eyebrow ash">Chapter 01 // Released March 19, 2025</div>
+      <h2 class="ch-heading ash">The Obsessive <span class="a-ash">Shadow</span></h2>
+      <div class="ch-sub ash">Survival Horror // First-Person // VR + Flat</div>
+      <span class="ch-status live">Available Now</span>
+
+      <p class="ch-desc"><strong>The Obsessive Shadow</strong> is a survival horror game about a stalker you can't quite identify. With nothing but your eyes and a flashlight at your disposal, it's up to you to survive whatever horrific person or thing is out there watching you.</p>
+      <p class="ch-desc">You take on the role of Liam — a 9-year-old boy left alone in his home after a sudden power outage plunges the house into suffocating darkness. Your mother's voice on the phone is your only guide. But as her instructions grow more confusing and the unease deepens, even her words begin to feel fragile.</p>
+
+      <div class="ch-tags">
+        <span class="ch-tag ash">Psychological Horror</span><span class="ch-tag ash">Atmospheric</span>
+        <span class="ch-tag ash">Multiple Endings</span><span class="ch-tag ash">Story Rich</span>
+        <span class="ch-tag ash">First-Person</span><span class="ch-tag ash">VR / 6DOF</span>
+        <span class="ch-tag ash">Surreal</span><span class="ch-tag ash">Cinematic</span>
+      </div>
+
+      <div class="ch-actions">
+        <a href="https://www.youtube.com/watch?v=52iEhG1yzuY" target="_blank" class="ch-trailer-btn ash">
+          <span class="tri"></span> Watch Trailer
+        </a>
+        <div class="ch-stores">
+          <a href="https://store.steampowered.com/app/2074360/The_Obsessive_Shadow/" target="_blank" class="ch-store-btn a-ash">
+            <svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.878 2.346-5.22 5.23-5.22 2.88 0 5.223 2.342 5.223 5.22 0 2.878-2.343 5.22-5.223 5.22h-.121l-4.106 2.941c0 .055.003.11.003.165 0 2.162-1.762 3.92-3.931 3.92-1.865 0-3.424-1.299-3.835-3.035l-4.597-1.903C2.093 21.037 6.581 24 11.979 24c6.624 0 11.998-5.373 11.998-12S18.603 0 11.979 0z"/></svg>
+            Get on Steam
+          </a>
+          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank" class="ch-store-btn a-ash">
+            <svg viewBox="0 0 24 24"><path d="M6.908 4C5.236 4 3.802 5.164 2.855 7.065 1.908 8.966 1.5 11.448 1.5 14c0 2.552.408 5.034 1.355 6.935C3.802 22.836 5.236 24 6.908 24c1.262 0 2.32-.646 3.294-1.716.974-1.07 1.91-2.666 2.846-4.568.936 1.902 1.872 3.498 2.846 4.568C16.868 23.354 17.926 24 19.188 24c1.672 0 3.106-1.164 4.053-3.065.947-1.901 1.259-4.383 1.259-6.935 0-2.552-.312-5.034-1.259-6.935C22.294 5.164 20.86 4 19.188 4c-1.458 0-2.715.916-3.773 2.312C14.357 7.708 13.37 9.576 12.5 11.674c-.87-2.098-1.857-3.966-2.915-5.362C8.527 4.916 7.27 4 5.812 4z"/></svg>
+            Meta Quest Store
+          </a>
+          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank" class="ch-store-btn a-ash">
+            <svg viewBox="0 0 24 24"><path d="M8.984 2.596v17.547l3.915 1.857V6.688c0-.69.304-1.151.794-.991.636.22.76.848.76 1.537v5.815c2.304 1.146 4.019-.144 4.019-3.374 0-3.319-1.152-4.485-4.573-5.559-1.225-.381-3.181-.89-3.915-1.52zM2 17.326l5.613 1.93c1.761.607 2.397-.186 2.397-.186v-2.45l-5.516 1.91c-.717.248-1.04-.13-1.04-.524 0-.394.323-.772 1.04-1.02l5.516-1.91v-2.38L2 14.626v2.7zm15.857-2.854c-.75-.42-1.764-.492-2.735-.175l-2.211.762v2.38l2.71-.936c.717-.248 1.04.13 1.04.524 0 .394-.323.772-1.04 1.02l-2.71.936v2.45l2.211-.762c2.454-.847 3.525-2.756 2.735-6.2z"/></svg>
+            PlayStation Wishlist
+          </a>
+          <span class="ch-store-btn disabled">
+            <svg viewBox="0 0 24 24"><path d="M4.102 21.033C6.211 22.881 8.977 24 12 24c6.623 0 12-5.377 12-12 0-2.52-.784-4.86-2.122-6.791L4.102 21.033zm2.069-2.063L17.911 7.24C16.625 5.862 14.91 5 12 5c-3.866 0-7 3.134-7 7 0 2.91.862 4.625 2.171 5.97zM0 12C0 5.377 5.377 0 12 0c2.944 0 5.626 1.094 7.673 2.886L2.886 19.674A11.987 11.987 0 010 12z"/></svg>
+            Xbox — Coming Soon
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tos-sep red-sep"><span class="tos-sep-icon" style="background:var(--bg);">👁</span></div>
+
+<!-- ══════════════════════════════════════════════
+     CHAPTER 2
+══════════════════════════════════════════════ -->
+<section class="tos-chapter alt" id="chapter2">
+  <!-- ambient video: tos-ch2-bg.mp4 in root folder -->
+  <video class="chapter-ambient" autoplay muted loop playsinline preload="none">
+    <source src="../tos-ch2-bg.mp4" type="video/mp4" />
+  </video>
+  <div class="chapter-ambient-fade"></div>
+
+  <div class="chapter-body">
+    <div class="ch-art reveal">
+      <div class="ch-art-frame ch2-frame" data-num="II">
+        <img src="../images/tos2-cover.jpg" alt="The Obsessive Shadow Chapter 2 cover art" />
+      </div>
+      <div class="ch-corner tl c-red"></div><div class="ch-corner tr c-red"></div>
+      <div class="ch-corner bl c-red"></div><div class="ch-corner br c-red"></div>
+    </div>
+
+    <div class="ch-copy reveal d1">
+      <div class="ch-eyebrow red">Chapter 02 // 2026</div>
+      <h2 class="ch-heading red">The Obsessive Shadow<br/>— <span class="a-red">Chapter 2</span></h2>
+      <div class="ch-sub red">Survival Horror // DLC // Demo Available Now</div>
+      <span class="ch-status demo">Demo Available Now</span>
+
+      <p class="ch-desc">Set <strong>20 years after</strong> the events of Chapter 1. After hearing ghost stories surrounding a cul-de-sac abandoned since the '80s, 16-year-old Justin takes on a dare from his friend — spend the night in the ruins of what was once a thriving community.</p>
+      <p class="ch-desc">Uncover the truth of what really happened all those years ago. Survive until morning.<br/><br/><strong>Note:</strong> Requires the base game on Steam. Coming to PS5, PSVR2, Meta Quest, Steam, and Xbox in 2026.</p>
+
+      <div class="ch-tags">
+        <span class="ch-tag red">Psychological Horror</span><span class="ch-tag red">Atmospheric</span>
+        <span class="ch-tag red">Multiple Endings</span><span class="ch-tag red">Story Rich</span>
+        <span class="ch-tag red">First-Person</span><span class="ch-tag red">VR / 6DOF</span>
+        <span class="ch-tag red">Surreal</span><span class="ch-tag red">Cinematic</span>
+      </div>
+
+      <div class="ch-actions">
+        <a href="https://www.youtube.com/watch?v=tMlidcFjxQA" target="_blank" class="ch-trailer-btn red">
+          <span class="tri"></span> Watch Trailer
+        </a>
+        <div class="ch-stores">
+          <a href="https://store.steampowered.com/app/3970390/The_Obsessive_Shadow__Chapter_2/" target="_blank" class="ch-store-btn a-red">
+            <svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.878 2.346-5.22 5.23-5.22 2.88 0 5.223 2.342 5.223 5.22 0 2.878-2.343 5.22-5.223 5.22h-.121l-4.106 2.941c0 .055.003.11.003.165 0 2.162-1.762 3.92-3.931 3.92-1.865 0-3.424-1.299-3.835-3.035l-4.597-1.903C2.093 21.037 6.581 24 11.979 24c6.624 0 11.998-5.373 11.998-12S18.603 0 11.979 0z"/></svg>
+            Steam Wishlist
+          </a>
+          <a href="https://www.meta.com/s/6nfMmUqye" target="_blank" class="ch-store-btn a-red">
+            <svg viewBox="0 0 24 24"><path d="M6.908 4C5.236 4 3.802 5.164 2.855 7.065 1.908 8.966 1.5 11.448 1.5 14c0 2.552.408 5.034 1.355 6.935C3.802 22.836 5.236 24 6.908 24c1.262 0 2.32-.646 3.294-1.716.974-1.07 1.91-2.666 2.846-4.568.936 1.902 1.872 3.498 2.846 4.568C16.868 23.354 17.926 24 19.188 24c1.672 0 3.106-1.164 4.053-3.065.947-1.901 1.259-4.383 1.259-6.935 0-2.552-.312-5.034-1.259-6.935C22.294 5.164 20.86 4 19.188 4c-1.458 0-2.715.916-3.773 2.312C14.357 7.708 13.37 9.576 12.5 11.674c-.87-2.098-1.857-3.966-2.915-5.362C8.527 4.916 7.27 4 5.812 4z"/></svg>
+            Quest Demo
+          </a>
+          <span class="ch-store-btn disabled">
+            <svg viewBox="0 0 24 24"><path d="M4.102 21.033C6.211 22.881 8.977 24 12 24c6.623 0 12-5.377 12-12 0-2.52-.784-4.86-2.122-6.791L4.102 21.033zm2.069-2.063L17.911 7.24C16.625 5.862 14.91 5 12 5c-3.866 0-7 3.134-7 7 0 2.91.862 4.625 2.171 5.97zM0 12C0 5.377 5.377 0 12 0c2.944 0 5.626 1.094 7.673 2.886L2.886 19.674A11.987 11.987 0 010 12z"/></svg>
+            Xbox — Coming Soon
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="tos-sep"><span class="tos-sep-icon">◈</span></div>
+
+<!-- ══════════════════════════════════════════════
+     FORTNITE
+══════════════════════════════════════════════ -->
+<section class="tos-special bg2" id="fortnite" data-watermark="FORTNITE">
+  <!--
+    FORTNITE BG VIDEO: drop tos-fortnite-bg.mp4 in the pmh-interactive/ root folder
+  -->
+  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55;">
+    <source src="../tos-fortnite-bg.mp4" type="video/mp4" />
+  </video>
+  <div class="special-body">
+    <div class="reveal">
+      <div class="ch-eyebrow ash">Fortnite Creative // UEFN</div>
+      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">in Fortnite</span></h2>
+      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Official Fortnite Creative Map</div>
+      <p class="ch-desc">After watching an emergency alert on the TV about a mysterious figure, the power shuts off in the house. The Shadow has followed you home. It is trying to break into your house. <strong>IT HATES THE LIGHT. LISTEN FOR THE KNOCKS. DONT MOVE.</strong> Will the shadow consume you?</p>
+      <div class="ch-tags" style="margin-bottom:1.4rem;">
+        <span class="ch-tag ash">1–4 Players</span>
+        <span class="ch-tag ash">Solo or Co-Op</span>
+        <span class="ch-tag ash">Unique Horror Gameplay</span>
+        <span class="ch-tag ash">UEFN / Creative 2.0</span>
+        <span class="ch-tag ash">Turn Up Your Volume</span>
+        <span class="ch-tag ash">High Graphics Recommended</span>
+      </div>
+      <div class="island-code" id="fnCode" title="Click to copy">Island Code: 3905-4332-3383</div>
+      <span class="island-hint">Click to copy // Paste in Fortnite Creative Island Select</span>
+      <div class="special-links">
+        <a href="https://www.fortnite.com/creative/island/3905-4332-3383" target="_blank" class="sp-btn fn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+          View on Fortnite.com
+        </a>
+        <a href="https://fortnite.gg/island?code=3905-4332-3383" target="_blank" class="sp-btn">fortnite.gg &rarr;</a>
+      </div>
+    </div>
+    <div class="special-media reveal d1">
+      <img
+        src="../images/tos-fortnite.jpg"
+        alt="The Obsessive Shadow in Fortnite"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      />
+      <div class="special-placeholder" style="display:none;">
+        <span class="sp-icon">🎮</span>
+        <span>Add a map screenshot<br/><code style="font-size:0.62em;opacity:0.5;">images/tos-fortnite.jpg</code></span>
+      </div>
+      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
+      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+    </div>
+  </div>
+</section>
+
+<div class="tos-sep"><span class="tos-sep-icon">🎬</span></div>
+
+<!-- ══════════════════════════════════════════════
+     SHORT FILM
+══════════════════════════════════════════════ -->
+<section class="tos-special bg flip" id="film" data-watermark="FILM">
+  <!--
+    FILM BG VIDEO: drop tos-film-bg.mp4 in the pmh-interactive/ root folder
+  -->
+  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55;">
+    <source src="../tos-film-bg.mp4" type="video/mp4" />
+  </video>
+  <div class="special-body">
+    <div class="reveal">
+      <div class="ch-eyebrow ash">Short Film Adaptation // Out Now</div>
+      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">— Official Shortfilm Adaptation</span></h2>
+      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Official Short Film</div>
+      <span class="ch-status live" style="margin-bottom:1.5rem;">Out Now</span>
+      <p class="ch-desc">Based on the survival indie horror game, <strong>The Obsessive Shadow</strong> delivers a tense, atmospheric story of a mother fighting to save her son after a chilling message on TV warns of a stalker in the dark — and a neighbor whose past may hold the key to survival.</p>
+      <p class="ch-desc">When an emergency broadcast disrupts the night, Nicole's (<strong>Beth Waugh</strong>; Need for Speed, 6 Below) son becomes trapped as something sinister stalks their home. Her neighbor Carl (<strong>Joseph Poliquin</strong>; Five Nights at Freddy's, Greyhound, The Purge) insists he's come face to face with this evil in the past, leaving Nicole to decide if she can trust him to survive the night.</p>
+      <div class="special-links">
+        <a href="https://www.youtube.com/watch?v=AgfO5FS62SE" target="_blank" class="watch-film-btn">
+          <span class="tri"></span> Watch the Film
+        </a>
+        <a href="https://www.youtube.com/watch?v=jkV1UC5QD30" target="_blank" class="sp-btn">
+          <span style="display:inline-block;width:0;height:0;border-style:solid;border-width:4px 0 4px 7px;border-color:transparent transparent transparent currentColor;flex-shrink:0;"></span>
+          &nbsp;Watch Trailer
+        </a>
+      </div>
+    </div>
+
+    <!-- Film still -->
+    <div class="special-media reveal d1">
+      <img
+        src="../images/tos-film-still.jpg"
+        alt="The Obsessive Shadow — Official Shortfilm Adaptation"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+      />
+      <div class="special-placeholder" style="display:none;">
+        <span class="sp-icon">🎥</span>
+        <span>Drop a still from the short film here<br/><code style="font-size:0.62em;opacity:0.5;">images/tos-film-still.jpg</code></span>
+      </div>
+      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
+      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ══════════════════════════════════════════════
+     MERCH
+══════════════════════════════════════════════ -->
+<div class="tos-merch" id="merch">
+  <div class="tos-merch-inner reveal">
+    <div class="label" style="justify-content:center;color:var(--ash);margin-bottom:0.8rem;">Official Merch Store</div>
+    <h2>The Obsessive Shadow Merch</h2>
+    <p>Shop official merchandise for The Obsessive Shadow.</p>
+    <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn btn-ash">[ Shop the Store &rarr; ]</a>
+  </div>
+</div>
+
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-row">
+          <img src="../PMH_Interactive_ICON_1.png" alt="PMH Interactive" class="footer-logo-img" />
+          <div class="footer-logo-name">PMH <span>Interactive</span></div>
+        </div>
+        <p>Independent game studio crafting immersive horror and VR experiences. Based in Tennessee.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>On This Page</h4>
+          <a href="#chapter1">Chapter 1</a>
+          <a href="#chapter2">Chapter 2</a>
+          <a href="#fortnite">Fortnite Map</a>
+          <a href="#film">Short Film</a>
+          <a href="#merch">Merch</a>
+        </div>
+        <div class="footer-col">
+          <h4>Studio</h4>
+          <a href="../index.html">Home</a>
+          <a href="games.html">All Games</a>
+          <a href="../index.html#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="privacy.html">Privacy Policy</a>
+        </div>
+        <div class="footer-col">
+          <h4>Platforms</h4>
+          <a href="https://store.steampowered.com/app/2074360/" target="_blank">Steam</a>
+          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank">Meta Quest</a>
+          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank">PlayStation</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025&ndash;2026 PMH Interactive (Pablo Heckman). All rights reserved.</span>
+      <a href="privacy.html">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../js/main.js"></script>
+<script>
+  /* ─────────────────────────────────────────────────────────────
+     PAUSE AMBIENT VIDEOS WHEN OFF-SCREEN
+     Stops GPU decode cost for videos the user can't see.
+  ───────────────────────────────────────────────────────────── */
+  (function() {
+    const videos = document.querySelectorAll('video');
+    if (!('IntersectionObserver' in window)) return;
+    const vo = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        const v = e.target;
+        if (e.isIntersecting) { if (v.paused) v.play().catch(()=>{}); }
+        else                  { if (!v.paused) v.pause(); }
+      });
+    }, { rootMargin: '200px' }); // start playing 200px before entering view
+    videos.forEach(v => vo.observe(v));
+  })();
+
+  /* ─────────────────────────────────────────────────────────────
+     ISLAND CODE COPY
+  ───────────────────────────────────────────────────────────── */
+  const fnCode = document.getElementById('fnCode');
+  if (fnCode) {
+    fnCode.addEventListener('click', () => {
+      navigator.clipboard.writeText('3905-4332-3383').then(() => {
+        const orig = fnCode.textContent;
+        fnCode.textContent = '✓ Copied!';
+        fnCode.style.color = 'var(--teal)';
+        fnCode.style.borderColor = 'rgba(0,200,150,0.3)';
+        fnCode.style.background = 'rgba(0,200,150,0.08)';
+        setTimeout(() => {
+          fnCode.textContent = orig;
+          fnCode.style.color = '';
+          fnCode.style.borderColor = '';
+          fnCode.style.background = '';
+        }, 2200);
+      });
+    });
+  }
+
+  /* ─────────────────────────────────────────────────────────────
+     VHS ENGINE — lean edition
+     Only handles: film grain (pre-baked frames) + rare glitch flash
+     Everything else is CSS. Runs at max 24fps. Pauses when tab hidden.
+     Skips entirely on mobile with coarse pointer (touch) + small screen.
+  ───────────────────────────────────────────────────────────── */
+  (function () {
+    const isMobile = window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
+    const canvas   = document.getElementById('vhs-canvas');
+    if (!canvas) return;
+
+    // On mobile: hide canvas entirely — CSS layers are enough
+    if (isMobile) { canvas.style.display = 'none'; return; }
+
+    const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+
+    let W = 0, H = 0;
+    function resize() {
+      // Run at half resolution — upscaled via CSS — halves GPU fill cost
+      W = canvas.width  = Math.ceil(window.innerWidth  / 2);
+      H = canvas.height = Math.ceil(window.innerHeight / 2);
+      canvas.style.width  = window.innerWidth  + 'px';
+      canvas.style.height = window.innerHeight + 'px';
+      canvas.style.imageRendering = 'pixelated';
+    }
+    resize();
+    window.addEventListener('resize', resize, { passive: true });
+
+    // ── Pre-bake noise frames at half-res ──
+    const POOL = 6;
+    const noisePool = [];
+    for (let f = 0; f < POOL; f++) {
+      const tmp = document.createElement('canvas');
+      tmp.width = tmp.height = 128; // small — tiled
+      const tc  = tmp.getContext('2d');
+      const id  = tc.createImageData(128, 128);
+      const d   = id.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = Math.random() * 255 | 0;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = Math.random() < 0.14 ? (8 + Math.random() * 28 | 0) : 0;
+      }
+      tc.putImageData(id, 0, 0);
+      noisePool.push(tmp);
+    }
+
+    // ── Glitch state ──
+    let glitchOn      = false;
+    let glitchFrames  = 0;
+    let glitchY       = 0;
+    let glitchH       = 0;
+    let glitchShift   = 0;
+
+    function maybeGlitch() {
+      if (!glitchOn && Math.random() < 0.003) { // ~0.3% per frame ≈ once per ~14s at 24fps
+        glitchOn     = true;
+        glitchFrames = 2 + Math.random() * 3 | 0;
+        glitchY      = Math.random() * H | 0;
+        glitchH      = 1 + Math.random() * 4 | 0;
+        glitchShift  = (Math.random() - 0.5) * 12 | 0;
+      }
+    }
+
+    // ── Throttled RAF at ~24fps ──
+    const FRAME_MS = 1000 / 24;
+    let lastTime   = 0;
+    let frameIdx   = 0;
+    let rafId      = 0;
+    let paused     = false;
+
+    document.addEventListener('visibilitychange', () => {
+      paused = document.hidden;
+      if (!paused) { lastTime = 0; rafId = requestAnimationFrame(draw); }
+      else cancelAnimationFrame(rafId);
+    });
+
+    function draw(ts) {
+      rafId = requestAnimationFrame(draw);
+      if (paused) return;
+      if (ts - lastTime < FRAME_MS) return;
+      lastTime = ts;
+      frameIdx++;
+
+      ctx.clearRect(0, 0, W, H);
+
+      // ── Grain ──
+      ctx.globalCompositeOperation = 'screen';
+      ctx.globalAlpha = 0.05;
+      const nf = noisePool[frameIdx % POOL];
+      for (let x = 0; x < W; x += 128) {
+        for (let y = 0; y < H; y += 128) {
+          ctx.drawImage(nf, x, y);
+        }
+      }
+
+      // ── Glitch flash ──
+      maybeGlitch();
+      if (glitchOn) {
+        ctx.globalCompositeOperation = 'screen';
+        ctx.globalAlpha = 0.35;
+        ctx.fillStyle = '#00e8cc';
+        ctx.fillRect(glitchShift, glitchY, W, glitchH);
+        glitchFrames--;
+        if (glitchFrames <= 0) glitchOn = false;
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+    }
+
+    rafId = requestAnimationFrame(draw);
+  })();
+</script>
+</body>
+</html>
