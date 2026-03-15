@@ -152,7 +152,7 @@
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: cover; z-index: 0;
-      opacity: 0.92;
+      opacity: 0.65;
       /* NO filter — CSS filter on video triggers repaint every frame */
     }
     /* Tint overlay replaces the filter entirely — static, zero cost */
@@ -277,7 +277,7 @@
     .chapter-ambient {
       position:absolute; inset:0; width:100%; height:100%;
       object-fit:cover; z-index:0;
-      opacity:0.55;
+      opacity:0.35;
       /* NO filter on video — use .chapter-ambient-fade overlay for tinting */
     }
     .chapter-ambient-fade {
@@ -728,7 +728,7 @@
   <!--
     FORTNITE BG VIDEO: drop tos-fortnite-bg.mp4 in the pmh-interactive/ root folder
   -->
-  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55;">
+  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35;">
     <source src="../tos-fortnite-bg.mp4" type="video/mp4" />
   </video>
   <div class="special-body">
@@ -780,7 +780,7 @@
   <!--
     FILM BG VIDEO: drop tos-film-bg.mp4 in the pmh-interactive/ root folder
   -->
-  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.55;">
+  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35;">
     <source src="../tos-film-bg.mp4" type="video/mp4" />
   </video>
   <div class="special-body">
