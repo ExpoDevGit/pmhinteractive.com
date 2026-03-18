@@ -221,7 +221,7 @@
 
   <!-- Countdown -->
   <div id="countdown-wrap" role="timer" aria-live="off">
-   <!--  <div id="countdown-label">transmission begins in</div> -->
+    <div id="countdown-label">transmission begins in</div>
     <div id="countdown-digits">00:00:00:00</div>
   </div>
 
@@ -269,25 +269,53 @@
     const endCard        = document.getElementById('end-card');
     const audioBg        = document.getElementById('audio-bg');
 
-    let teaserFired = false;
-
     /* ── Skip straight to end card if ?endcard in URL ── */
     if (IS_ENDCARD) {
       countdownWrap.style.display = 'none';
       endCard.classList.add('active');
     }
 
-    /* ── Background audio ── */
-    audioBg.volume = 0.35;
-    audioBg.play().catch(() => {
-      // Autoplay blocked — play on first interaction
-      function unlockBg() {
-        audioBg.play().catch(() => {});
-        document.removeEventListener('click',      unlockBg);
-        document.removeEventListener('touchstart', unlockBg);
-      }
-      document.addEventListener('click',      unlockBg, { once: true });
-      document.addEventListener('touchstart', unlockBg, { once: true, passive: true });
+    let teaserFired  = false;
+    let videoReady   = false; // true once video has been "primed" by a user gesture
+
+    /* ── Background audio + video primer ──
+       The first time the browser allows audio (either immediately or after
+       a gesture), we also silently prime the video by calling play()+pause().
+       This "unlocks" the video element so it can be played later from a
+       timer without triggering autoplay restrictions.
+    ── */
+    function primeVideo() {
+      if (videoReady) return;
+      // Play muted for one frame then pause — this registers a user-gesture
+      // association on the video element in most browsers.
+      finalVideo.muted  = true;
+      finalVideo.volume = 0;
+      finalVideo.play().then(() => {
+        finalVideo.pause();
+        finalVideo.currentTime = 0;
+        finalVideo.muted  = false;
+        finalVideo.volume = 1;
+        videoReady = true;
+      }).catch(() => {});
+    }
+
+    function startAudio() {
+      audioBg.volume = 0.35;
+      audioBg.play().then(() => {
+        primeVideo();
+      }).catch(() => {});
+    }
+
+    // Try immediately (works on desktop with no autoplay restrictions)
+    startAudio();
+
+    // Also listen for any user interaction as a guaranteed unlock path
+    ['click', 'touchstart', 'keydown', 'pointerdown'].forEach(evt => {
+      document.addEventListener(evt, function handler() {
+        startAudio();
+        primeVideo();
+        document.removeEventListener(evt, handler);
+      }, { once: true, passive: true });
     });
 
     /* ── End card on video finish ── */
@@ -300,17 +328,42 @@
     function triggerTeaser() {
       countdownWrap.style.display = 'none';
       finalVideoWrap.classList.add('active');
-      finalVideo.muted = true;
-      finalVideo.play().then(() => {
-        finalVideo.muted = false;
-      }).catch(() => {
-        function onTap() {
+
+      finalVideo.muted  = false;
+      finalVideo.volume = 1;
+
+      const playAttempt = finalVideo.play();
+
+      if (playAttempt !== undefined) {
+        playAttempt.then(() => {
+          // Playing fine — ensure unmuted
           finalVideo.muted = false;
-          finalVideo.play().catch(() => {});
-        }
-        document.addEventListener('click',      onTap, { once: true });
-        document.addEventListener('touchstart', onTap, { once: true, passive: true });
-      });
+        }).catch(() => {
+          // Blocked — try muted fallback then unmute
+          finalVideo.muted = true;
+          finalVideo.play().then(() => {
+            finalVideo.muted = false;
+          }).catch(() => {
+            // Last resort: show a tap-to-play prompt
+            const prompt = document.createElement('div');
+            prompt.textContent = 'TAP TO PLAY';
+            prompt.style.cssText = [
+              'position:fixed', 'inset:0', 'z-index:20',
+              'display:flex', 'align-items:center', 'justify-content:center',
+              'font-family:var(--vcr)', 'font-size:1.2rem', 'letter-spacing:0.25em',
+              'color:rgba(255,255,255,0.6)', 'cursor:pointer'
+            ].join(';');
+            document.body.appendChild(prompt);
+            function onTap() {
+              finalVideo.muted = false;
+              finalVideo.play().catch(() => {});
+              prompt.remove();
+            }
+            prompt.addEventListener('click',      onTap, { once: true });
+            prompt.addEventListener('touchstart', onTap, { once: true });
+          });
+        });
+      }
     }
 
     /* ── Countdown ── */
