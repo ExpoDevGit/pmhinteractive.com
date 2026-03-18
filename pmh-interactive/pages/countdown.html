@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>...</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
+  <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --vcr: 'VCR OSD Mono', 'Share Tech Mono', monospace;
+      --white: #ffffff;
+      --white-dim: rgba(255,255,255,0.6);
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: var(--vcr);
+    }
+
+    /* ── Background scene ── */
+    /* FILE: images/countdown-bg.jpg — your pre-rendered room/environment */
+    #env-bg {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background-image: url('../images/countdown-bg.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* ── TV on image — visible by default ── */
+    /* FILE: images/countdown-tv-on.png */
+    #tv-layer {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+    #tv-on {
+      width: min(680px, 88vw);
+      height: auto;
+    }
+
+    /* ── Scanlines ── */
+    #scanlines {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,0.1) 0px,
+        rgba(0,0,0,0.1) 1px,
+        transparent 1px,
+        transparent 3px
+      );
+    }
+
+    /* ── Countdown ── */
+    #countdown-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 4;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      padding-bottom: 6vh;
+    }
+
+    #countdown-label {
+      font-family: var(--vcr);
+      font-size: clamp(0.5rem, 1.5vw, 0.72rem);
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--white-dim);
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 10px rgba(255,255,255,0.3);
+    }
+    #countdown-digits {
+      font-family: var(--vcr);
+      font-size: clamp(1.2rem, 4.5vw, 3rem);
+      color: var(--white);
+      letter-spacing: 0.06em;
+      line-height: 1;
+      text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px rgba(255,255,255,0.3);
+      animation: crtFlicker 9s ease-in-out infinite;
+    }
+
+    @keyframes crtFlicker {
+      0%,100% { opacity: 1; }
+      91%     { opacity: 1; }
+      92%     { opacity: 0.3; }
+      93%     { opacity: 1; }
+      96%     { opacity: 0.6; }
+      97%     { opacity: 1; }
+    }
+
+    /* ── Video overlay ── */
+    #final-video-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 10;
+      background: #000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+    }
+    #final-video-wrap.active { display: flex; }
+    #final-video {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+      background: #000;
+    }
+    @media (orientation: portrait) and (max-width: 768px) {
+      #final-video {
+        width: 100%;
+        height: auto;
+        max-height: 100vh;
+        object-fit: contain;
+      }
+    }
+
+    /* ── End card ── */
+    #end-card {
+      position: fixed;
+      inset: 0;
+      z-index: 11;
+      background: #000;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 1.4rem;
+      text-align: center;
+      padding: 2rem;
+      animation: endFadeIn 1.2s ease forwards;
+    }
+    #end-card.active { display: flex; }
+    @keyframes endFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #end-card-title {
+      font-family: var(--vcr);
+      font-size: clamp(1.6rem, 5.5vw, 3.4rem);
+      color: #fff;
+      letter-spacing: 0.06em;
+      line-height: 1.15;
+      text-shadow: 0 0 5px rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.25);
+      animation: crtFlicker 9s ease-in-out infinite;
+    }
+    #end-card-outnow {
+      font-family: var(--vcr);
+      font-size: clamp(1rem, 3vw, 1.6rem);
+      color: var(--white-dim);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      text-shadow: 0 0 8px rgba(255,255,255,0.3);
+    }
+    #end-card-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+      margin-top: 0.5rem;
+      flex-wrap: wrap;
+    }
+    #end-card-logos img {
+      height: clamp(40px, 7vw, 62px);
+      width: auto;
+      display: block;
+      opacity: 0.9;
+    }
+    #end-card-pmh {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.65rem;
+      margin-top: 0.6rem;
+      opacity: 0.85;
+    }
+    #end-card-pmh img {
+      height: 34px;
+      width: auto;
+      display: block;
+    }
+    #end-card-pmh span {
+      font-family: var(--vcr);
+      font-size: clamp(1rem, 2.4vw, 1.3rem);
+      color: #fff;
+      letter-spacing: 0.18em;
+      text-transform: lowercase;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background scene -->
+  <div id="env-bg" aria-hidden="true"></div>
+
+  <!-- TV on image -->
+  <div id="tv-layer" aria-hidden="true">
+    <img id="tv-on" src="../images/countdown-tv-on.png" alt="" onerror="this.style.display='none';" />
+  </div>
+
+  <!-- Scanlines -->
+  <div id="scanlines" aria-hidden="true"></div>
+
+  <!-- Countdown -->
+  <div id="countdown-wrap" role="timer" aria-live="off">
+   <!--  <div id="countdown-label">transmission begins in</div> -->
+    <div id="countdown-digits">00:00:00:00</div>
+  </div>
+
+  <!-- Video overlay -->
+  <!-- FILE: audio/countdown-teaser.mp4 -->
+  <div id="final-video-wrap" aria-hidden="true">
+    <video id="final-video" src="../audio/countdown-teaser.mp4" preload="auto" playsinline></video>
+  </div>
+
+  <!-- End card (shown after video ends) -->
+  <!-- Logo files: images/logo-meta.png, images/logo-steam.png -->
+  <div id="end-card" aria-hidden="true">
+    <div id="end-card-title">The Obsessive Shadow</div>
+    <div id="end-card-outnow">Out Now</div>
+    <div id="end-card-logos">
+      <img src="../images/logo-meta.png"  alt="Meta Quest" />
+      <img src="../images/logo-steam.png" alt="Steam" />
+    </div>
+    <div id="end-card-pmh">
+      <img src="../PMH_Interactive_ICON_1.png" alt="PMH Interactive" />
+      <span>pmhinteractive.com</span>
+    </div>
+  </div>
+
+  <!-- Background audio: always playing -->
+  <!-- FILE: audio/countdown-bg.mp3 -->
+  <audio id="audio-bg" src="../audio/countdown-bg.mp3" loop preload="auto"></audio>
+
+  <script>
+    /*
+      TARGET: March 19, 2026 at 8:00 AM CST (UTC-6 = UTC-6 → 14:00 UTC)
+      TEST:   Add ?test to URL for a 1m45s countdown (video fires at 0:11)
+      ENDCARD: Add ?endcard to URL to skip straight to the end card
+    */
+    const IS_TEST    = new URLSearchParams(window.location.search).has('test');
+    const IS_ENDCARD = new URLSearchParams(window.location.search).has('endcard');
+    const TARGET  = IS_TEST
+      ? new Date(Date.now() + 1 * 60 * 1000 + 45 * 1000)
+      : new Date('2026-03-19T14:00:00Z');
+
+    const digits         = document.getElementById('countdown-digits');
+    const countdownWrap  = document.getElementById('countdown-wrap');
+    const finalVideoWrap = document.getElementById('final-video-wrap');
+    const finalVideo     = document.getElementById('final-video');
+    const endCard        = document.getElementById('end-card');
+    const audioBg        = document.getElementById('audio-bg');
+
+    let teaserFired = false;
+
+    /* ── Skip straight to end card if ?endcard in URL ── */
+    if (IS_ENDCARD) {
+      countdownWrap.style.display = 'none';
+      endCard.classList.add('active');
+    }
+
+    /* ── Background audio ── */
+    audioBg.volume = 0.35;
+    audioBg.play().catch(() => {
+      // Autoplay blocked — play on first interaction
+      function unlockBg() {
+        audioBg.play().catch(() => {});
+        document.removeEventListener('click',      unlockBg);
+        document.removeEventListener('touchstart', unlockBg);
+      }
+      document.addEventListener('click',      unlockBg, { once: true });
+      document.addEventListener('touchstart', unlockBg, { once: true, passive: true });
+    });
+
+    /* ── End card on video finish ── */
+    finalVideo.addEventListener('ended', () => {
+      finalVideoWrap.classList.remove('active');
+      endCard.classList.add('active');
+    });
+
+    /* ── Teaser trigger ── */
+    function triggerTeaser() {
+      countdownWrap.style.display = 'none';
+      finalVideoWrap.classList.add('active');
+      finalVideo.muted = true;
+      finalVideo.play().then(() => {
+        finalVideo.muted = false;
+      }).catch(() => {
+        function onTap() {
+          finalVideo.muted = false;
+          finalVideo.play().catch(() => {});
+        }
+        document.addEventListener('click',      onTap, { once: true });
+        document.addEventListener('touchstart', onTap, { once: true, passive: true });
+      });
+    }
+
+    /* ── Countdown ── */
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function tick() {
+      const diff = TARGET.getTime() - Date.now();
+
+      if (!teaserFired && diff <= 94000) {
+        teaserFired = true;
+        triggerTeaser();
+        return;
+      }
+
+      if (diff <= 0) return;
+
+      const days  = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins  = Math.floor((diff % 3600000)  / 60000);
+      const secs  = Math.floor((diff % 60000)    / 1000);
+
+      digits.textContent = `${pad(days)}:${pad(hours)}:${pad(mins)}:${pad(secs)}`;
+    }
+
+    tick();
+    setInterval(tick, 1000);
+
+    /* ── Block right-click and text select ── */
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+  </script>
+</body>
+</html>
