@@ -423,8 +423,6 @@ section { padding: 7.5rem var(--gutter); }
 
 /* ════════════════════════════════════════════════════════════
    PARTNERS
-   The marks come from a dozen different brands, so they are
-   desaturated to sit together and colour up on hover.
    ════════════════════════════════════════════════════════════ */
 #partners { background: var(--bg); }
 .partners-grid {
@@ -441,10 +439,10 @@ section { padding: 7.5rem var(--gutter); }
 .partner img {
   max-width: 100%; max-height: 100%; width: auto; height: auto;
   object-fit: contain;
-  filter: grayscale(1); opacity: 0.68;
-  transition: filter 0.28s, opacity 0.28s, transform 0.28s;
+  opacity: 0.9;
+  transition: opacity 0.28s, transform 0.28s;
 }
-.partner:hover img { filter: grayscale(0); opacity: 1; transform: scale(1.04); }
+.partner:hover img { opacity: 1; transform: scale(1.05); }
 /* a name set in type, for partners whose logo we do not have on file */
 .partner-name {
   font-family: var(--font-display); font-size: 1.15rem; line-height: 1.05;
