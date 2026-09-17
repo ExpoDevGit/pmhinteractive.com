@@ -247,6 +247,12 @@
       line-height: 0.94; color: #fff; letter-spacing: 0.02em; margin-bottom: 0.6rem;
     }
     .tos-heading span { color: var(--accent); }
+    /* Section wordmarks. The <img> only replaces the text once it loads,
+       so a missing logo file falls back to the typeset heading. */
+    .tos-logo-mark { display: none; width: min(460px, 100%); height: auto; }
+    .tos-heading.logo-loaded .tos-logo-mark  { display: block; }
+    .tos-heading.logo-loaded .tos-heading-text { display: none; }
+    .tos-heading.logo-loaded { margin-bottom: 1rem; }
     .tos-sub {
       font-family: var(--font-vcr); font-size: 0.68rem;
       letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim);
@@ -434,7 +440,12 @@
 
     <div class="tos-copy reveal d1">
       <div class="tos-eyebrow">Chapter 01 // Released March 19, 2025</div>
-      <h2 class="tos-heading">The Obsessive <span>Shadow</span></h2>
+      <h2 class="tos-heading">
+        <img src="../images/tos-logos/chapter-1.png" alt="The Obsessive Shadow" class="tos-logo-mark"
+             onload="this.closest('.tos-heading').classList.add('logo-loaded')"
+             onerror="this.remove()" />
+        <span class="tos-heading-text">The Obsessive <span>Shadow</span></span>
+      </h2>
       <div class="tos-sub">Survival Horror // First-Person // VR + Flat</div>
       <span class="tos-status live">Available Now</span>
 
@@ -485,7 +496,12 @@
   <div class="tos-body">
     <div class="tos-copy reveal">
       <div class="tos-eyebrow">Chapter 02 // 2026</div>
-      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Chapter 2</span></h2>
+      <h2 class="tos-heading">
+        <img src="../images/tos-logos/chapter-2.png" alt="The Obsessive Shadow: Chapter 2" class="tos-logo-mark"
+             onload="this.closest('.tos-heading').classList.add('logo-loaded')"
+             onerror="this.remove()" />
+        <span class="tos-heading-text">The Obsessive Shadow<br /><span>Chapter 2</span></span>
+      </h2>
       <div class="tos-sub">Survival Horror // DLC // In Development</div>
       <span class="tos-status dev">In Development</span>
 
@@ -547,7 +563,12 @@
 
     <div class="tos-copy reveal d1">
       <div class="tos-eyebrow">Spin-Off // Planned for 2027</div>
-      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Former Residents</span></h2>
+      <h2 class="tos-heading">
+        <img src="../images/tos-logos/former-residents.png" alt="The Obsessive Shadow: Former Residents" class="tos-logo-mark"
+             onload="this.closest('.tos-heading').classList.add('logo-loaded')"
+             onerror="this.remove()" />
+        <span class="tos-heading-text">The Obsessive Shadow<br /><span>Former Residents</span></span>
+      </h2>
       <div class="tos-sub">2D Horror Narrative // Top-Down // Pixel Art</div>
       <span class="tos-status dev">In Development</span>
 
@@ -587,7 +608,12 @@
   <div class="tos-body">
     <div class="tos-copy reveal">
       <div class="tos-eyebrow">Mixed Reality // Meta Quest 3 &amp; 3S</div>
-      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Home Invasion</span></h2>
+      <h2 class="tos-heading">
+        <img src="../images/tos-logos/home-invasion.png" alt="The Obsessive Shadow Mixed Reality: Home Invasion" class="tos-logo-mark"
+             onload="this.closest('.tos-heading').classList.add('logo-loaded')"
+             onerror="this.remove()" />
+        <span class="tos-heading-text">The Obsessive Shadow<br /><span>Home Invasion</span></span>
+      </h2>
       <div class="tos-sub">Passthrough Horror // Room-Scale // Single-Player</div>
       <span class="tos-status dev">In Development</span>
 
@@ -679,7 +705,12 @@
   <div class="tos-body">
     <div class="tos-copy reveal">
       <div class="tos-eyebrow">Crossover // Meta Quest</div>
-      <h2 class="tos-heading">The Obsessive Shadow<br /><span>&times; Monsters and Mazes</span></h2>
+      <h2 class="tos-heading">
+        <img src="../images/tos-logos/monsters-and-mazes.png" alt="The Obsessive Shadow x Monsters and Mazes" class="tos-logo-mark"
+             onload="this.closest('.tos-heading').classList.add('logo-loaded')"
+             onerror="this.remove()" />
+        <span class="tos-heading-text">The Obsessive Shadow<br /><span>&times; Monsters and Mazes</span></span>
+      </h2>
       <div class="tos-sub">Official Crossover // Multiplayer VR Horror</div>
 
       <p class="tos-desc">An all new monster has made it&rsquo;s way into the mazes. Play as The Obsessive Shadow in this new spooky crossover! Knock knock&hellip; who&rsquo;s there? It seems to be a stalker you can&rsquo;t exactly identify. <strong>IT. IS. HERE.</strong></p>
