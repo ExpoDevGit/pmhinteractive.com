@@ -7,7 +7,7 @@
   <!-- Keep this page out of search results -->
   <meta name="robots" content="noindex, nofollow" />
   <link rel="stylesheet" href="../css/style.css" />
-  <link rel="icon" href="../favicon.ico" />
+  <link rel="icon" href="../images/favicon.ico" />
   <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
   <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet" />
   <style>
@@ -90,7 +90,8 @@
       box-shadow: 0 8px 30px rgba(136,165,219,0.12);
     }
     .platform-btn:disabled { opacity: 0.4; cursor: default; }
-    .platform-btn svg { width: 42px; height: 42px; fill: currentColor; }
+    .platform-btn .brand-mark { width: 40px; height: 40px; opacity: 0.9; }
+    .platform-btn:hover:not(:disabled) .brand-mark { opacity: 1; }
     .platform-btn.steam:hover:not(:disabled) { color: var(--steam); border-color: var(--steam); }
     .platform-btn.quest:hover:not(:disabled) { color: #6fa8ff; border-color: var(--quest); }
     .platform-btn small {
@@ -210,9 +211,9 @@
     <li><a href="../index.html#socials">Socials</a></li>
     <li><a href="../index.html#contact">Contact</a></li>
     <li><a href="privacy.html">Privacy</a></li>
-    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn-merch">Merch</a></li>
+    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn-merch">Merch</a></li>
   </ul>
-  <div class="hamburger"><span></span><span></span><span></span></div>
+  <div class="hamburger" aria-label="Toggle menu" role="button" tabindex="0"><span></span><span></span><span></span></div>
 </nav>
 <div class="mobile-menu">
   <a href="../index.html#about">About</a>
@@ -221,7 +222,7 @@
   <a href="../index.html#socials">Socials</a>
   <a href="../index.html#contact">Contact</a>
   <a href="privacy.html">Privacy</a>
-  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="merch-link">Merch 🛒</a>
+  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="merch-link">Merch</a>
 </div>
 
 <div class="redeem-wrap">
@@ -245,12 +246,12 @@
 
     <div class="platform-row">
       <button class="platform-btn steam" data-platform="steam">
-        <svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.878 2.346-5.22 5.23-5.22 2.88 0 5.223 2.342 5.223 5.22 0 2.878-2.343 5.22-5.223 5.22h-.121l-4.106 2.941c0 .055.003.11.003.165 0 2.162-1.762 3.92-3.931 3.92-1.865 0-3.424-1.299-3.835-3.035l-4.597-1.903C2.093 21.037 6.581 24 11.979 24c6.624 0 11.998-5.373 11.998-12S18.603 0 11.979 0z"/></svg>
+        <img src="../images/logos/steam.svg" alt="" class="brand-mark" />
         Steam
         <small>PC · Steam Deck · VR &amp; Flat</small>
       </button>
       <button class="platform-btn quest" data-platform="quest">
-        <svg viewBox="0 0 24 24"><path d="M6.908 4C5.236 4 3.802 5.164 2.855 7.065 1.908 8.966 1.5 11.448 1.5 14c0 2.552.408 5.034 1.355 6.935C3.802 22.836 5.236 24 6.908 24c1.262 0 2.32-.646 3.294-1.716.974-1.07 1.91-2.666 2.846-4.568.936 1.902 1.872 3.498 2.846 4.568C16.868 23.354 17.926 24 19.188 24c1.672 0 3.106-1.164 4.053-3.065.947-1.901 1.259-4.383 1.259-6.935 0-2.552-.312-5.034-1.259-6.935C22.294 5.164 20.86 4 19.188 4c-1.458 0-2.715.916-3.773 2.312C14.357 7.708 13.37 9.576 12.5 11.674c-.87-2.098-1.857-3.966-2.915-5.362C8.527 4.916 7.27 4 5.812 4z"/></svg>
+        <img src="../images/logos/meta.svg" alt="" class="brand-mark" />
         Meta Quest
         <small>Quest 2 · 3 · 3S · Pro</small>
       </button>

@@ -4,219 +4,130 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>The Obsessive Shadow — PMH Interactive</title>
-  <meta name="description" content="The Obsessive Shadow — a survival horror franchise by Pablo Heckman. Games, film, Fortnite, and more across PS5, PSVR2, Meta Quest, Steam, and Xbox." />
+  <meta name="description" content="The Obsessive Shadow — a survival horror franchise by Pablo Heckman. Games, mixed reality, Fortnite, crossovers, film, and the official soundtrack across PS5, PSVR2, Meta Quest, Steam, and Xbox." />
   <link rel="stylesheet" href="../css/style.css" />
-  <link rel="icon" href="../favicon.ico" />
+  <link rel="icon" href="../images/favicon.ico" />
   <link rel="preconnect" href="https://fonts.cdnfonts.com" crossorigin />
   <link href="https://fonts.cdnfonts.com/css/vcr-osd-mono" rel="stylesheet" />
   <style>
-
     /* ════════════════════════════════════════════
-       VCR FONT — entire page
-    ════════════════════════════════════════════ */
-    body.tos-page {
-      font-family: 'VCR OSD Mono', 'Share Tech Mono', monospace;
-    }
-    body.tos-page h1, body.tos-page h2, body.tos-page h3, body.tos-page h4,
-    body.tos-page p, body.tos-page a, body.tos-page span, body.tos-page div,
-    body.tos-page li, body.tos-page button, body.tos-page label,
-    body.tos-page code, body.tos-page nav {
-      font-family: 'VCR OSD Mono', 'Share Tech Mono', monospace;
-    }
-
-    /* ════════════════════════════════════════════
-       COLORS
+       THE OBSESSIVE SHADOW — franchise page
+       Display: Bebas Neue · Body: Roboto Condensed
+       VCR OSD Mono is reserved for eyebrows, status
+       pills and small labels — the VHS accent voice.
     ════════════════════════════════════════════ */
     :root {
-      --red:         #c0392b;
-      --red-bright:  #e74c3c;
-      --red-dim:     #7b1f16;
-      --red-glow:    0 0 40px rgba(192, 57, 43, 0.5);
-      --red-subtle:  rgba(192, 57, 43, 0.08);
-      --red-border:  rgba(192, 57, 43, 0.22);
-      /* periwinkle — used everywhere except ch2 */
-      --ash:         #88a5db;
-      --ash-dim:     rgba(136,165,219,0.55);
-      --ash-subtle:  rgba(136,165,219,0.08);
-      --ash-border:  rgba(136,165,219,0.22);
+      --red:        #c0392b;
+      --red-line:   rgba(192, 57, 43, 0.28);
+      --red-soft:   rgba(192, 57, 43, 0.08);
+
+      --ash:        #88a5db;
+      --ash-line:   rgba(136, 165, 219, 0.24);
+      --ash-soft:   rgba(136, 165, 219, 0.08);
+
+      --ice:        #78d8f8;
+      --ice-line:   rgba(120, 216, 248, 0.26);
+      --ice-soft:   rgba(120, 216, 248, 0.07);
+
+      --font-vcr:   'VCR OSD Mono', ui-monospace, monospace;
     }
 
-  /* ════════════════════════════════════════════
-     VHS EFFECT — lean, mobile-safe
-     Static layers: CSS only (zero JS cost)
-     Dynamic layers: canvas at 24fps max, paused off-screen
-  ════════════════════════════════════════════ */
-
-  /* Canvas handles only grain + rare glitch — NO blend mode */
-  #vhs-canvas {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 9000;
-    pointer-events: none;
-    opacity: 0.55;
-    /* NO mix-blend-mode — that forces full page composite every frame */
-    /* NO will-change:contents — wrong hint, wastes VRAM */
-  }
-
-  /* ── Scanlines — pure CSS, zero paint cost ── */
-  #vhs-scanlines {
-    position: fixed;
-    inset: 0;
-    z-index: 9001;
-    pointer-events: none;
-    background-image: repeating-linear-gradient(
-      0deg,
-      rgba(0,0,0,0.10) 0px,
-      rgba(0,0,0,0.10) 1px,
-      transparent      1px,
-      transparent      3px
-    );
-    transform: translateZ(0);
-  }
-
-  /* ── Rolling scan bar — CSS transform only, compositor thread ── */
-  #vhs-scanbar {
-    position: fixed;
-    left: 0; right: 0;
-    height: 120px;
-    z-index: 9002;
-    pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent            0%,
-      rgba(255,255,255,0.009) 40%,
-      rgba(255,255,255,0.022) 50%,
-      rgba(255,255,255,0.009) 60%,
-      transparent            100%
-    );
-    animation: vhsScanBar 10s linear infinite;
-    will-change: transform;
-  }
-  @keyframes vhsScanBar {
-    from { transform: translateY(-120px); }
-    to   { transform: translateY(calc(100vh + 120px)); }
-  }
-
-  /* ── Chromatic aberration via CSS filter on a fixed layer ── */
-  body.tos-page::before {
-    content: '';
-    position: fixed;
-    inset: -2px;
-    z-index: 8999;
-    pointer-events: none;
-    background: transparent;
-    box-shadow:
-      -1px 0 0 0 rgba(255, 30, 30,  0.025),
-       1px 0 0 0 rgba(30,  60, 255, 0.025);
-    transform: translateZ(0);
-    /* NO will-change here — static element */
-  }
-
-  /* ── Vignette ── */
-  #vhs-vignette {
-    position: fixed;
-    inset: 0;
-    z-index: 9003;
-    pointer-events: none;
-    background: radial-gradient(
-      ellipse 110% 110% at 50% 50%,
-      transparent      42%,
-      rgba(0,0,0,0.22) 70%,
-      rgba(0,0,0,0.60) 100%
-    );
-    transform: translateZ(0);
-  }
-
-  /* ── Kill all effects on reduced-motion or small screens ── */
-  @media (prefers-reduced-motion: reduce) {
-    #vhs-canvas, #vhs-scanbar { display: none; }
-  }
-  @media (max-width: 768px) {
-    /* On mobile keep scanlines + vignette (CSS only), kill canvas + scanbar */
-    #vhs-canvas, #vhs-scanbar { display: none; }
-  }
+    /* ════════════════════════════════════════════
+       VHS GRADE — static CSS layers, one small canvas
+    ════════════════════════════════════════════ */
+    #vhs-canvas {
+      position: fixed; inset: 0; width: 100%; height: 100%;
+      z-index: 9000; pointer-events: none; opacity: 0.5;
+    }
+    #vhs-scanlines {
+      position: fixed; inset: 0; z-index: 9001; pointer-events: none;
+      background-image: repeating-linear-gradient(
+        0deg, rgba(0,0,0,0.09) 0px, rgba(0,0,0,0.09) 1px, transparent 1px, transparent 3px);
+      transform: translateZ(0);
+    }
+    #vhs-scanbar {
+      position: fixed; left: 0; right: 0; height: 120px;
+      z-index: 9002; pointer-events: none;
+      background: linear-gradient(to bottom,
+        transparent 0%, rgba(255,255,255,0.008) 40%, rgba(255,255,255,0.02) 50%,
+        rgba(255,255,255,0.008) 60%, transparent 100%);
+      animation: vhsScanBar 11s linear infinite;
+      will-change: transform;
+    }
+    @keyframes vhsScanBar {
+      from { transform: translateY(-120px); }
+      to   { transform: translateY(calc(100vh + 120px)); }
+    }
+    #vhs-vignette {
+      position: fixed; inset: 0; z-index: 9003; pointer-events: none;
+      background: radial-gradient(ellipse 110% 110% at 50% 50%,
+        transparent 44%, rgba(0,0,0,0.2) 72%, rgba(0,0,0,0.58) 100%);
+      transform: translateZ(0);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #vhs-canvas, #vhs-scanbar { display: none; }
+    }
+    @media (max-width: 768px) {
+      #vhs-canvas, #vhs-scanbar { display: none; }
+    }
 
     /* ════════════════════════════════════════════
        HERO
     ════════════════════════════════════════════ */
     .tos-hero {
-      position: relative;
-      min-height: 100vh;
+      position: relative; min-height: 100vh;
       display: flex; align-items: center; justify-content: center;
-      text-align: center;
-      overflow: hidden; padding: 0;
+      text-align: center; overflow: hidden;
+      padding: var(--nav-h) var(--gutter) 0;
     }
     .tos-hero-video {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      object-fit: cover; z-index: 0;
-      opacity: 0.65;
-      /* NO filter — CSS filter on video triggers repaint every frame */
-    }
-    /* Tint overlay replaces the filter entirely — static, zero cost */
-    .tos-hero-video-tint {
-      position: absolute; inset: 0; z-index: 1;
-      background: rgba(10,6,18,0.18); /* slight desaturating dark tint */
-      pointer-events: none;
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; z-index: 0; opacity: 0.6;
     }
     .tos-hero-overlay {
       position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(to bottom,
-        rgba(14,14,14,0.55) 0%,
-        rgba(14,14,14,0.0)  28%,
-        rgba(14,14,14,0.0)  65%,
-        rgba(14,14,14,0.9)  90%,
-        #0e0e0e 100%
-      ),
-      radial-gradient(ellipse 80% 65% at 50% 20%, rgba(136,165,219,0.1) 0%, transparent 65%);
+      background:
+        linear-gradient(to bottom, rgba(10,10,10,0.6) 0%, rgba(10,10,10,0.15) 30%,
+                        rgba(10,10,10,0.2) 60%, rgba(10,10,10,0.92) 90%, var(--bg) 100%),
+        radial-gradient(ellipse 80% 65% at 50% 25%, rgba(136,165,219,0.1) 0%, transparent 66%);
     }
     .tos-hero-content {
-      position: relative; z-index: 3;
-      max-width: 900px; padding: 0 2rem;
+      position: relative; z-index: 3; max-width: 900px;
       display: flex; flex-direction: column; align-items: center;
     }
     .tos-logo-img {
-      width: min(620px, 85vw); height: auto; display: block;
-      filter: drop-shadow(0 0 24px rgba(136,165,219,0.3));
-      margin-bottom: 1.6rem;
+      width: min(600px, 84vw); height: auto; display: block;
+      margin-bottom: 1.8rem;
+      filter: drop-shadow(0 6px 40px rgba(0,0,0,0.9));
       animation: heroDrop 0.9s cubic-bezier(.22,1,.36,1) both;
-      position: relative;
-      z-index: 4;
-    }
-
-    /* ── Contain sections to stop style recalc propagation ── */
-    .tos-chapter, .tos-special, .tos-sep, .tos-merch {
-      contain: layout style paint;
     }
     @keyframes heroDrop {
-      from { opacity:0; transform:translateY(-14px); }
-      to   { opacity:1; transform:translateY(0); }
+      from { opacity: 0; transform: translateY(-14px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
     #tos-fallback-title {
       display: none;
-      font-size: clamp(2.8rem,9vw,7rem);
-      line-height: 1; color: #fff;
-      text-shadow: 0 0 40px rgba(0,0,0,0.98);
-      margin-bottom: 1.6rem;
+      font-family: var(--font-display);
+      font-size: clamp(3.2rem, 11vw, 8rem);
+      line-height: 0.88; color: #fff; letter-spacing: 0.03em;
+      text-shadow: 0 6px 40px rgba(0,0,0,0.95);
+      margin-bottom: 1.8rem;
       animation: heroDrop 0.9s cubic-bezier(.22,1,.36,1) both;
-      letter-spacing: 0.04em;
     }
     .tos-hero-byline {
-      font-size: 0.68rem; letter-spacing: 0.3em; text-transform: uppercase;
-      color: var(--ash-dim);
+      font-family: var(--font-vcr); font-size: 0.72rem;
+      letter-spacing: 0.3em; text-transform: uppercase; color: var(--ash);
       margin-bottom: 1.6rem;
       display: flex; align-items: center; gap: 1.2rem;
       animation: fadeUp 0.7s 0.25s ease both;
     }
     .tos-hero-byline::before,
-    .tos-hero-byline::after { content:''; width:36px; height:1px; background:var(--ash-border); }
+    .tos-hero-byline::after { content: ''; width: 40px; height: 1px; background: var(--ash-line); }
     .tos-hero-tagline {
-      font-size: clamp(0.78rem, 1.8vw, 0.92rem);
-      color: var(--text-mid); max-width: 500px;
-      line-height: 2; margin-bottom: 2.6rem;
-      text-shadow: 0 1px 12px rgba(0,0,0,0.98);
+      font-size: clamp(1rem, 2vw, 1.15rem);
+      color: var(--text-mid); max-width: 540px;
+      line-height: 1.85; margin-bottom: 2.6rem;
+      text-shadow: 0 2px 18px rgba(0,0,0,0.95);
       animation: fadeUp 0.7s 0.4s ease both;
     }
     .tos-hero-cta {
@@ -224,308 +135,233 @@
       animation: fadeUp 0.7s 0.55s ease both;
     }
     .btn-ash {
-      background: rgba(136,165,219,0.1);
-      color: #d8e4ed;
-      border: 1px solid var(--ash-border);
+      background: rgba(136,165,219,0.12); color: #e6ecfa;
+      border-color: var(--ash-line);
     }
-    .btn-ash:hover {
-      background: rgba(136,165,219,0.2);
-      border-color: var(--ash); color: #fff;
-      transform: translateY(-2px);
-    }
-
-    .tos-platform-strip {
-      position: absolute; bottom:0; left:0; right:0; z-index:3;
-      display: flex; align-items: center; justify-content: center;
-      gap: 2.5rem; padding: 1rem 2rem;
-      background: rgba(10,10,14,0.9);
-      border-top: 1px solid var(--ash-border);
-      flex-wrap: wrap;
-    }
-    .platform-item {
-      font-size: 0.68rem; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--text-dim);
-      display: flex; align-items: center; gap: 0.5rem;
-    }
-    .platform-item .dot { width:5px; height:5px; border-radius:50%; background:var(--ash); flex-shrink:0; }
-    .platform-item.live { color: var(--text-mid); }
+    .btn-ash:hover { background: rgba(136,165,219,0.22); border-color: var(--ash); color: #fff; transform: translateY(-2px); }
 
     /* ════════════════════════════════════════════
-       DIVIDERS
+       SECTION SHELL — one system, accent-driven
     ════════════════════════════════════════════ */
-    .tos-sep {
-      position: relative; height: 1px;
-      background: linear-gradient(to right, transparent, var(--ash-border) 30%, var(--ash-border) 70%, transparent);
+    .tos-section {
+      --accent:      var(--ash);
+      --accent-line: var(--ash-line);
+      --accent-soft: var(--ash-soft);
+      position: relative; overflow: hidden;
+      background: var(--bg);
+      contain: layout style paint;
     }
-    .tos-sep.red-sep {
-      background: linear-gradient(to right, transparent, var(--red-border) 30%, var(--red-border) 70%, transparent);
-    }
-    .tos-sep-icon {
-      position: absolute; top:50%; left:50%;
-      transform: translate(-50%,-50%);
-      background: var(--bg); padding: 0 1rem;
-      font-size: 0.8rem; color: var(--ash-dim);
-    }
-    .tos-sep.red-sep .tos-sep-icon { background: var(--bg2); color: var(--red-dim); }
+    .tos-section.alt  { background: var(--bg2); }
+    .tos-section.red  { --accent: var(--red); --accent-line: var(--red-line); --accent-soft: var(--red-soft); }
+    .tos-section.ice  { --accent: var(--ice); --accent-line: var(--ice-line); --accent-soft: var(--ice-soft); }
+    .tos-section.teal { --accent: var(--teal); --accent-line: var(--border); --accent-soft: var(--teal-subtle); }
 
-    /* ════════════════════════════════════════════
-       CHAPTER SECTIONS
-    ════════════════════════════════════════════ */
-    .tos-chapter { position:relative; overflow:hidden; background:var(--bg); }
-    .tos-chapter.alt { background: var(--bg2); }
+    /* ambient backdrop: video OR still image */
+    .tos-bg {
+      position: absolute; inset: 0; z-index: 0;
+      width: 100%; height: 100%; object-fit: cover;
+      opacity: 0.35;
+    }
+    .tos-bg-img {
+      position: absolute; inset: 0; z-index: 0;
+      background-size: cover; background-position: center;
+      opacity: 0.3;
+    }
+    .tos-bg-fade {
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, var(--bg) 0%, rgba(14,14,14,0.05) 16%,
+                                  rgba(14,14,14,0.05) 84%, var(--bg) 100%);
+    }
+    .tos-section.alt .tos-bg-fade {
+      background: linear-gradient(to bottom, var(--bg2) 0%, rgba(20,20,20,0.05) 16%,
+                                  rgba(20,20,20,0.05) 84%, var(--bg2) 100%);
+    }
 
-    .chapter-ambient {
-      position:absolute; inset:0; width:100%; height:100%;
-      object-fit:cover; z-index:0;
-      opacity:0.35;
-      /* NO filter on video — use .chapter-ambient-fade overlay for tinting */
+    .tos-body {
+      position: relative; z-index: 2;
+      max-width: var(--wrap); margin: 0 auto;
+      padding: 8rem var(--gutter);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 5.5rem; align-items: center;
     }
-    .chapter-ambient-fade {
-      position:absolute; inset:0; z-index:1;
-      background: linear-gradient(to bottom, var(--bg) 0%, rgba(14,14,14,0.04) 15%, rgba(14,14,14,0.04) 85%, var(--bg) 100%);
-    }
-    .tos-chapter.alt .chapter-ambient-fade {
-      background: linear-gradient(to bottom, var(--bg2) 0%, rgba(20,20,20,0.04) 15%, rgba(20,20,20,0.04) 85%, var(--bg2) 100%);
-    }
+    /* art sits left by default, right on .flip — independent of source order */
+    .tos-section      .tos-art  { order: 1; }
+    .tos-section      .tos-copy { order: 2; }
+    .tos-section.flip .tos-art  { order: 2; }
+    .tos-section.flip .tos-copy { order: 1; }
 
-    .chapter-body {
-      position:relative; z-index:2;
-      max-width:1240px; margin:0 auto; padding:8rem 2.5rem;
-      display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+    /* ── Art frame ── */
+    .tos-art { position: relative; }
+    .art-frame {
+      position: relative; overflow: hidden; background: #000;
+      border: 1px solid var(--accent-line);
     }
-    .tos-chapter.alt .chapter-body { direction:rtl; }
-    .tos-chapter.alt .chapter-body > * { direction:ltr; }
-
-    /* art frame */
-    .ch-art { position:relative; }
-    .ch-art-frame {
-      position:relative; overflow:hidden; background:#000;
-    }
-    .ch-art-frame::before {
+    .art-frame::before {
       content: attr(data-num);
-      position:absolute; bottom:-0.05em; right:0.05em;
-      font-size:10rem; line-height:1;
-      color: rgba(255,255,255,0.028);
-      pointer-events:none; z-index:0;
+      position: absolute; bottom: -0.08em; right: 0.06em;
+      font-family: var(--font-display); font-size: 11rem; line-height: 1;
+      color: rgba(255,255,255,0.03); pointer-events: none; z-index: 2;
     }
-    .ch-art-frame img {
-      width:100%; height:100%; object-fit:cover; object-position:top center;
-      display:block; opacity:0.88;
+    .art-frame img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center top;
+      display: block; opacity: 0.9;
       transition: transform 0.6s cubic-bezier(.22,1,.36,1), opacity 0.3s;
-      position:relative; z-index:1;
+      position: relative; z-index: 1;
     }
-    .ch-art-frame:hover img { transform:scale(1.04); opacity:1; }
-    .ch1-frame { border:1px solid var(--ash-border); }
-    .ch2-frame { border:1px solid var(--red-border); }
+    .art-frame:hover img { transform: scale(1.04); opacity: 1; }
+    .art-frame.wide img { aspect-ratio: 16/9; }
 
-    .ch-corner { position:absolute; width:20px; height:20px; z-index:2; }
-    .ch-corner.tl { top:-1px;    left:-1px;  border-top:2px solid currentColor; border-left:2px solid currentColor; }
-    .ch-corner.tr { top:-1px;    right:-1px; border-top:2px solid currentColor; border-right:2px solid currentColor; }
-    .ch-corner.bl { bottom:-1px; left:-1px;  border-bottom:2px solid currentColor; border-left:2px solid currentColor; }
-    .ch-corner.br { bottom:-1px; right:-1px; border-bottom:2px solid currentColor; border-right:2px solid currentColor; }
-    .c-ash { color:var(--ash); }
-    .c-red  { color:var(--red); }
+    .art-corner { position: absolute; width: 20px; height: 20px; z-index: 3; color: var(--accent); }
+    .art-corner.tl { top: -1px;    left: -1px;  border-top: 2px solid currentColor; border-left: 2px solid currentColor; }
+    .art-corner.tr { top: -1px;    right: -1px; border-top: 2px solid currentColor; border-right: 2px solid currentColor; }
+    .art-corner.bl { bottom: -1px; left: -1px;  border-bottom: 2px solid currentColor; border-left: 2px solid currentColor; }
+    .art-corner.br { bottom: -1px; right: -1px; border-bottom: 2px solid currentColor; border-right: 2px solid currentColor; }
 
-    /* chapter copy */
-    .ch-copy { display:flex; flex-direction:column; }
-
-    .ch-eyebrow {
-      font-size:0.65rem; letter-spacing:0.28em; text-transform:uppercase; margin-bottom:0.9rem;
+    /* ── Crossover lockup (no third-party art) ── */
+    .collab-lockup {
+      position: relative; aspect-ratio: 16/10;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.4rem; text-align: center; padding: 2rem;
+      background:
+        radial-gradient(ellipse 80% 80% at 50% 50%, rgba(136,165,219,0.1) 0%, transparent 70%),
+        #0a0a0d;
+      border: 1px solid var(--accent-line); overflow: hidden;
     }
-    .ch-eyebrow.ash { color:var(--ash-dim); }
-    .ch-eyebrow.red { color:var(--red); }
-
-    .ch-heading {
-      font-size: clamp(1.9rem, 4vw, 3rem);
-      line-height:1.06; margin-bottom:0.3rem; letter-spacing:0.02em;
+    .collab-lockup::after {
+      content: ''; position: absolute; inset: 0; pointer-events: none;
+      background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 1px, transparent 1px, transparent 4px);
     }
-    .ch-heading.ash { color:#d8e4ed; }
-    .ch-heading.red { color:#fff; }
-    .a-ash { color:var(--ash); }
-    .a-red  { color:var(--red); }
-
-    .ch-sub {
-      font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase;
-      margin-bottom:1.5rem; padding-bottom:1.4rem;
+    .cl-name {
+      font-family: var(--font-display); color: #fff; line-height: 0.95;
+      font-size: clamp(1.4rem, 3.6vw, 2.5rem); letter-spacing: 0.04em;
     }
-    .ch-sub.ash { color:var(--text-dim); border-bottom:1px solid var(--ash-border); }
-    .ch-sub.red { color:rgba(192,57,43,0.55); border-bottom:1px solid var(--red-border); }
-
-    .ch-status {
-      display:inline-flex; align-items:center; gap:0.5rem;
-      font-size:0.68rem; letter-spacing:0.14em; text-transform:uppercase;
-      padding:0.28rem 0.85rem; margin-bottom:1.5rem; align-self:flex-start;
+    .cl-x {
+      font-family: var(--font-display); color: var(--accent);
+      font-size: clamp(2.4rem, 7vw, 4.2rem); line-height: 1; margin: 0.5rem 0;
     }
-    .ch-status::before { content:''; width:6px; height:6px; border-radius:50%; background:currentColor; flex-shrink:0; }
-    .ch-status.live { color:var(--teal); background:rgba(0,200,150,0.08); border:1px solid rgba(0,200,150,0.28); }
-    .ch-status.live::before { animation:pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.2;} }
-    .ch-status.demo { color:#ffa040; background:rgba(255,160,64,0.08); border:1px solid rgba(255,160,64,0.28); }
-
-    .ch-desc { color:var(--text-mid); font-size:0.88rem; line-height:1.9; margin-bottom:1rem; }
-    .ch-desc strong { color:var(--text); }
-
-    .ch-tags { display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:2rem; }
-    .ch-tag { font-size:0.65rem; letter-spacing:0.06em; text-transform:uppercase; padding:0.18rem 0.5rem; }
-    .ch-tag.ash { border:1px solid var(--ash-border); color:var(--ash-dim); background:var(--ash-subtle); }
-    .ch-tag.red  { border:1px solid var(--red-border); color:rgba(192,57,43,0.65); background:var(--red-subtle); }
-
-    .ch-actions { display:flex; flex-direction:column; gap:0.65rem; }
-
-    .ch-trailer-btn {
-      display:inline-flex; align-items:center; gap:0.55rem;
-      font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase;
-      text-decoration:none; padding:0.62rem 1.2rem; transition:all 0.22s;
-      align-self:flex-start;
-    }
-    .ch-trailer-btn.ash {
-      border:1px solid var(--ash-border); color:var(--ash); background:var(--ash-subtle);
-    }
-    .ch-trailer-btn.ash:hover { background:rgba(136,165,219,0.16); border-color:var(--ash); color:#fff; transform:translateX(2px); }
-    .ch-trailer-btn.red {
-      border:1px solid rgba(192,57,43,0.45); color:#e06060; background:rgba(192,57,43,0.09);
-    }
-    .ch-trailer-btn.red:hover { background:rgba(192,57,43,0.2); border-color:var(--red); color:#ff8888; transform:translateX(2px); }
-    .ch-trailer-btn .tri {
-      width:0; height:0; border-style:solid;
-      border-width:5px 0 5px 9px;
-      border-color:transparent transparent transparent currentColor; flex-shrink:0;
+    .cl-tag {
+      font-family: var(--font-vcr); font-size: 0.66rem; letter-spacing: 0.24em;
+      text-transform: uppercase; color: var(--text-dim); margin-top: 1.2rem;
     }
 
-    .ch-stores { display:flex; flex-wrap:wrap; gap:0.5rem; }
-    .ch-store-btn {
-      display:inline-flex; align-items:center; gap:0.45rem;
-      font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase;
-      text-decoration:none; padding:0.6rem 1.1rem;
-      border:1px solid var(--border-dim); color:var(--text-mid);
-      background:rgba(255,255,255,0.03); transition:all 0.2s; white-space:nowrap;
-    }
-    .ch-store-btn:hover { border-color:rgba(255,255,255,0.18); color:#fff; background:rgba(255,255,255,0.07); transform:translateY(-1px); }
-    .ch-store-btn.a-ash { border-color:var(--ash-border); color:var(--ash); background:var(--ash-subtle); }
-    .ch-store-btn.a-ash:hover { background:rgba(136,165,219,0.15); border-color:var(--ash); color:#fff; }
-    .ch-store-btn.a-red { border-color:rgba(0,200,150,0.25); color:var(--teal); background:rgba(0,200,150,0.06); }
-    .ch-store-btn.a-red:hover { background:rgba(0,200,150,0.14); border-color:rgba(0,200,150,0.45); }
-    .ch-store-btn.disabled { opacity:0.35; cursor:default; pointer-events:none; }
-    .ch-store-btn svg { width:13px; height:13px; fill:currentColor; flex-shrink:0; }
+    /* ── Copy column ── */
+    .tos-copy { display: flex; flex-direction: column; align-items: flex-start; }
 
-    /* ════════════════════════════════════════════
-       SPECIAL SECTIONS
-    ════════════════════════════════════════════ */
-    .tos-special { position:relative; overflow:hidden; }
-    .tos-special.bg2 { background:var(--bg2); }
-    .tos-special.bg  { background:var(--bg); }
-    .tos-special::before {
-      content:attr(data-watermark);
-      position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      font-size:clamp(7rem,18vw,16rem);
-      color:rgba(255,255,255,0.016);
-      letter-spacing:-0.04em; white-space:nowrap;
-      pointer-events:none; z-index:0; line-height:1;
+    .tos-eyebrow {
+      font-family: var(--font-vcr); font-size: 0.7rem;
+      letter-spacing: 0.26em; text-transform: uppercase;
+      color: var(--accent); margin-bottom: 1rem;
     }
-    .special-body {
-      position:relative; z-index:1;
-      max-width:1240px; margin:0 auto; padding:8rem 2.5rem;
-      display:grid; grid-template-columns:1fr 1fr; gap:6rem; align-items:center;
+    .tos-heading {
+      font-family: var(--font-display);
+      font-size: clamp(2.2rem, 4.6vw, 3.6rem);
+      line-height: 0.94; color: #fff; letter-spacing: 0.02em; margin-bottom: 0.6rem;
     }
-    .tos-special.flip .special-body { direction:rtl; }
-    .tos-special.flip .special-body > * { direction:ltr; }
+    .tos-heading span { color: var(--accent); }
+    .tos-sub {
+      font-family: var(--font-vcr); font-size: 0.68rem;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim);
+      padding-bottom: 1.4rem; margin-bottom: 1.5rem;
+      border-bottom: 1px solid var(--accent-line);
+      width: 100%;
+    }
+    .tos-status {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-vcr); font-size: 0.68rem;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      padding: 0.35rem 0.9rem; margin-bottom: 1.5rem;
+    }
+    .tos-status::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; flex-shrink: 0; }
+    .tos-status.live { color: var(--teal); background: var(--teal-subtle); border: 1px solid var(--border); }
+    .tos-status.live::before { animation: statusPulse 2s ease-in-out infinite; }
+    .tos-status.dev  { color: #ffa040; background: rgba(255,160,64,0.08); border: 1px solid rgba(255,160,64,0.28); }
+    @keyframes statusPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
 
-    .special-media {
-      position:relative; background:#000;
-      border:1px solid var(--ash-border); overflow:hidden;
-    }
-    .special-media img {
-      width:100%; display:block;
-      opacity:0.88;
-      transition: transform 0.6s cubic-bezier(.22,1,.36,1), opacity 0.3s;
-    }
-    .special-media:hover img { transform:scale(1.04); opacity:1; }
+    .tos-desc { color: var(--text-mid); font-size: 1rem; line-height: 1.8; margin-bottom: 1rem; }
+    .tos-desc strong { color: var(--text); font-weight: 400; }
 
-    .special-placeholder {
-      aspect-ratio:16/9;
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:0.8rem; font-size:0.68rem; letter-spacing:0.12em; text-transform:uppercase;
-      color:var(--text-dim); padding:3rem; text-align:center;
+    .tos-tags { display: flex; gap: 0.35rem; flex-wrap: wrap; margin: 0.6rem 0 2rem; }
+    .tos-tag {
+      font-family: var(--font-ui); font-size: 0.63rem; font-weight: 500;
+      letter-spacing: 0.11em; text-transform: uppercase; padding: 0.28rem 0.6rem;
+      border: 1px solid var(--accent-line); color: var(--accent); background: var(--accent-soft);
     }
-    .special-placeholder .sp-icon { font-size:2.5rem; color:var(--ash-border); }
 
+    .tos-actions { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
+    .tos-stores { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+    .tos-btn {
+      display: inline-flex; align-items: center; gap: 0.55rem;
+      font-family: var(--font-ui); font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.13em; text-transform: uppercase; text-decoration: none;
+      padding: 0.75rem 1.2rem; border: 1px solid var(--border-dim);
+      color: var(--text-mid); background: rgba(255,255,255,0.025);
+      transition: border-color 0.2s, color 0.2s, background 0.2s, transform 0.2s;
+      align-self: flex-start; white-space: nowrap;
+    }
+    .tos-btn:hover { border-color: rgba(255,255,255,0.3); color: #fff; background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+    .tos-btn.accent { border-color: var(--accent-line); color: var(--accent); background: var(--accent-soft); }
+    .tos-btn.accent:hover { border-color: var(--accent); color: #fff; background: color-mix(in srgb, var(--accent) 18%, transparent); }
+    .tos-btn.watch { border-color: rgba(255,70,70,0.35); color: #ff6b6b; background: rgba(255,60,60,0.07); }
+    .tos-btn.watch:hover { border-color: #ff6b6b; background: rgba(255,60,60,0.16); color: #ff8f8f; }
+    .tos-btn.disabled { opacity: 0.32; pointer-events: none; }
+    .tos-btn .tri {
+      width: 0; height: 0; border-style: solid;
+      border-width: 5px 0 5px 9px;
+      border-color: transparent transparent transparent currentColor; flex-shrink: 0;
+    }
+
+    /* ── Fortnite island code ── */
     .island-code {
-      display:inline-flex; align-items:center; gap:0.7rem;
-      font-size:0.82rem; letter-spacing:0.14em;
-      padding:0.6rem 1.2rem;
-      background:rgba(80,200,240,0.07); border:1px solid rgba(80,200,240,0.2);
-      color:#78d8f8; cursor:copy; transition:background 0.2s;
-      user-select:all; margin-bottom:0.6rem;
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      font-family: var(--font-vcr); font-size: 0.92rem; letter-spacing: 0.16em;
+      padding: 0.7rem 1.2rem; margin-bottom: 0.5rem;
+      background: var(--accent-soft); border: 1px solid var(--accent-line);
+      color: var(--accent); cursor: copy; user-select: all;
+      transition: background 0.2s;
     }
-    .island-code:hover { background:rgba(80,200,240,0.14); }
-    .island-code::before { content:'◈'; opacity:0.7; }
-    .island-hint { font-size:0.62rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-dim); margin-bottom:1.6rem; display:block; }
-
-    .special-links { display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:1rem; }
-    .sp-btn {
-      display:inline-flex; align-items:center; gap:0.45rem;
-      font-size:0.68rem; letter-spacing:0.06em; text-transform:uppercase;
-      text-decoration:none; padding:0.62rem 1.15rem;
-      border:1px solid var(--ash-border); color:var(--ash-dim); background:var(--ash-subtle);
-      transition:all 0.2s;
-    }
-    .sp-btn:hover { border-color:var(--ash); color:#fff; background:rgba(136,165,219,0.15); transform:translateY(-1px); }
-    .sp-btn.fn { border-color:rgba(80,200,240,0.25); color:#78d8f8; background:rgba(80,200,240,0.06); }
-    .sp-btn.fn:hover { background:rgba(80,200,240,0.14); border-color:rgba(80,200,240,0.45); }
-
-    .watch-film-btn {
-      display:inline-flex; align-items:center; gap:0.55rem;
-      font-size:0.7rem; letter-spacing:0.14em; text-transform:uppercase;
-      text-decoration:none; padding:0.62rem 1.2rem;
-      border:1px solid rgba(0,200,150,0.35); color:var(--teal); background:rgba(0,200,150,0.07);
-      transition:all 0.22s;
-    }
-    .watch-film-btn:hover { background:rgba(0,200,150,0.16); border-color:var(--teal); transform:translateX(2px); }
-    .watch-film-btn .tri {
-      width:0; height:0; border-style:solid;
-      border-width:5px 0 5px 9px;
-      border-color:transparent transparent transparent currentColor; flex-shrink:0;
+    .island-code:hover { background: color-mix(in srgb, var(--accent) 14%, transparent); }
+    .island-hint {
+      font-family: var(--font-ui); font-size: 0.63rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim);
+      margin-bottom: 1.8rem; display: block;
     }
 
-    /* ════════════════════════════════════════════
-       MERCH
-    ════════════════════════════════════════════ */
+    /* ── Divider ── */
+    .tos-rule {
+      height: 1px; border: none; margin: 0;
+      background: linear-gradient(to right, transparent, var(--border-dim) 25%, var(--border-dim) 75%, transparent);
+    }
+
+    /* ── Merch band ── */
     .tos-merch {
-      position:relative; overflow:hidden; padding:6rem 2rem; text-align:center;
-      border-top:1px solid var(--ash-border); border-bottom:1px solid var(--ash-border);
-      background:var(--bg2);
+      position: relative; overflow: hidden;
+      padding: 7rem var(--gutter); text-align: center;
+      border-top: 1px solid var(--ash-line); border-bottom: 1px solid var(--ash-line);
+      background: var(--bg2);
     }
-    .tos-merch::after {
-      content:'MERCH'; position:absolute; top:50%; left:50%;
-      transform:translate(-50%,-50%);
-      font-size:clamp(5rem,18vw,13rem);
-      color:rgba(255,255,255,0.018);
-      letter-spacing:-0.04em; white-space:nowrap; pointer-events:none; line-height:1; z-index:0;
-    }
-    .tos-merch-inner { position:relative; z-index:1; max-width:520px; margin:0 auto; }
-    .tos-merch-inner h2 { font-size:clamp(1.6rem,4vw,2.6rem); color:#fff; margin-bottom:0.9rem; line-height:1.2; }
-    .tos-merch-inner p  { color:var(--text-mid); margin-bottom:2rem; font-size:0.88rem; line-height:1.85; }
+    .tos-merch-inner { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; }
+    .tos-merch-inner h2 { font-size: clamp(2.2rem, 5vw, 3.4rem); color: #fff; margin-bottom: 1rem; }
+    .tos-merch-inner p { color: var(--text-mid); margin-bottom: 2.2rem; }
 
-    /* ── Contain: already set above in logo section ── */
-    /* ── No will-change on videos — browser handles decode layers ── */
+    /* ── Responsive ── */
     @media (max-width: 960px) {
-      .chapter-body, .special-body { grid-template-columns:1fr; gap:3rem; padding:5rem 1.5rem; }
-      .tos-chapter.alt .chapter-body, .tos-special.flip .special-body { direction:ltr; }
-      .tos-platform-strip { gap:1.5rem; }
+      .tos-body { grid-template-columns: 1fr; gap: 3rem; padding: 5rem var(--gutter); }
+      /* stacked: art always leads, whichever side it sat on */
+      .tos-section .tos-art, .tos-section.flip .tos-art { order: 1; }
+      .tos-section .tos-copy, .tos-section.flip .tos-copy { order: 2; }
+      .art-frame::before { font-size: 7rem; }
     }
     @media (max-width: 640px) {
-      .chapter-body, .special-body { padding:4rem 1rem; gap:2rem; }
-      .ch-stores { flex-direction:column; }
-      .ch-store-btn, .sp-btn, .watch-film-btn, .ch-trailer-btn { width:100%; justify-content:center; align-self:stretch; }
-      .tos-platform-strip { flex-direction:column; gap:0.6rem; align-items:flex-start; padding:1rem 1.5rem; }
-      .tos-hero-content { padding:0 1rem; }
+      .tos-body { padding: 4rem var(--gutter); gap: 2.25rem; }
+      .tos-stores { flex-direction: column; align-items: stretch; }
+      .tos-btn { justify-content: center; align-self: stretch; }
+      .tos-merch { padding: 4.5rem var(--gutter); }
     }
   </style>
 </head>
 <body class="tos-page">
 
-<!-- VHS effect layers -->
+<!-- VHS grade layers -->
 <canvas id="vhs-canvas" aria-hidden="true"></canvas>
 <div id="vhs-scanlines" aria-hidden="true"></div>
 <div id="vhs-scanbar" aria-hidden="true"></div>
@@ -534,124 +370,111 @@
 <!-- ── NAVBAR ── -->
 <nav id="navbar">
   <a href="../index.html" class="nav-logo">
-    <img src="../PMH_Interactive_ICON_1.png" alt="PMH Interactive" class="nav-logo-img" />
+    <img src="../PMH_Interactive_ICON_1.png" alt="" class="nav-logo-img" />
     PMH <span>&nbsp;Interactive</span>
   </a>
   <ul class="nav-links">
     <li><a href="../index.html#about">About</a></li>
     <li><a href="games.html">Games</a></li>
-    <li><a href="obsessive-shadow.html" style="color:var(--teal);">The Obsessive Shadow</a></li>
+    <li><a href="obsessive-shadow.html">The Obsessive Shadow</a></li>
     <li><a href="../index.html#socials">Socials</a></li>
     <li><a href="../index.html#contact">Contact</a></li>
     <li><a href="privacy.html">Privacy</a></li>
-    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn-merch">Merch</a></li>
+    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn-merch">Merch</a></li>
   </ul>
-  <div class="hamburger" aria-label="Toggle menu"><span></span><span></span><span></span></div>
+  <div class="hamburger" aria-label="Toggle menu" role="button" tabindex="0"><span></span><span></span><span></span></div>
 </nav>
 <div class="mobile-menu">
   <a href="../index.html#about">About</a>
   <a href="games.html">Games</a>
-  <a href="obsessive-shadow.html" style="color:var(--teal);">The Obsessive Shadow</a>
+  <a href="obsessive-shadow.html">The Obsessive Shadow</a>
   <a href="../index.html#socials">Socials</a>
   <a href="../index.html#contact">Contact</a>
   <a href="privacy.html">Privacy</a>
-  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="merch-link">Merch 🛒</a>
+  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="merch-link">Merch</a>
 </div>
-
 
 <!-- ══════════════════════════════════════════════
      HERO
 ══════════════════════════════════════════════ -->
 <section class="tos-hero" id="top">
-  <!-- hero bg video: drop tos-hero-bg.mp4 in the pmh-interactive/ root folder -->
   <video class="tos-hero-video" autoplay muted loop playsinline preload="auto">
     <source src="../tos-hero-bg.mp4" type="video/mp4" />
+    <source src="../tos-ch1-bg.mp4" type="video/mp4" />
   </video>
-  <div class="tos-hero-video-tint"></div>
   <div class="tos-hero-overlay"></div>
 
   <div class="tos-hero-content">
-    <!-- PNG logo: images/tos-logo.png — falls back to text if missing -->
     <img
       src="../images/tos-logo.png"
       alt="The Obsessive Shadow"
       class="tos-logo-img"
-      onload="this.style.opacity='1';"
       onerror="this.style.display='none';document.getElementById('tos-fallback-title').style.display='block';"
-      style="opacity:1;"
     />
-    <div id="tos-fallback-title">THE<br/>OBSESSIVE<br/>SHADOW</div>
+    <h1 id="tos-fallback-title">The<br />Obsessive<br />Shadow</h1>
 
     <div class="tos-hero-byline">Created by Pablo Heckman</div>
     <p class="tos-hero-tagline">
-      A survival horror franchise spanning video games,<br/>
-      virtual reality, Fortnite, and film.<br/>
-      The darkness is always watching.
+      A survival horror franchise spanning video games, virtual reality,
+      Fortnite, and film. The darkness is always watching.
     </p>
     <div class="tos-hero-cta">
-      <a href="#chapter1" class="btn btn-ash">[ Explore ]</a>
-      <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn btn-outline">Official Merch &rarr;</a>
+      <a href="#chapter1" class="btn btn-ash">Explore the Franchise</a>
+      <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn btn-outline">Official Merch</a>
     </div>
   </div>
-
-  </section>
-
+</section>
 
 <!-- ══════════════════════════════════════════════
      CHAPTER 1
 ══════════════════════════════════════════════ -->
-<section class="tos-chapter" id="chapter1">
-  <!-- ambient video: tos-ch1-bg.mp4 in root folder -->
-  <video class="chapter-ambient" autoplay muted loop playsinline preload="none">
+<section class="tos-section" id="chapter1">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
     <source src="../tos-ch1-bg.mp4" type="video/mp4" />
   </video>
-  <div class="chapter-ambient-fade"></div>
+  <div class="tos-bg-fade"></div>
 
-  <div class="chapter-body">
-    <div class="ch-art reveal">
-      <div class="ch-art-frame ch1-frame" data-num="I">
+  <div class="tos-body">
+    <div class="tos-art reveal">
+      <div class="art-frame" data-num="I">
         <img src="../images/tos1-cover.jpg" alt="The Obsessive Shadow cover art" />
       </div>
-      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
-      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
 
-    <div class="ch-copy reveal d1">
-      <div class="ch-eyebrow ash">Chapter 01 // Released March 19, 2025</div>
-      <h2 class="ch-heading ash">The Obsessive <span class="a-ash">Shadow</span></h2>
-      <div class="ch-sub ash">Survival Horror // First-Person // VR + Flat</div>
-      <span class="ch-status live">Available Now</span>
+    <div class="tos-copy reveal d1">
+      <div class="tos-eyebrow">Chapter 01 // Released March 19, 2025</div>
+      <h2 class="tos-heading">The Obsessive <span>Shadow</span></h2>
+      <div class="tos-sub">Survival Horror // First-Person // VR + Flat</div>
+      <span class="tos-status live">Available Now</span>
 
-      <p class="ch-desc"><strong>The Obsessive Shadow</strong> is a survival horror game about a stalker you can't quite identify. With nothing but your eyes and a flashlight at your disposal, it's up to you to survive whatever horrific person or thing is out there watching you.</p>
-      <p class="ch-desc">You take on the role of Liam — a 9-year-old boy left alone in his home after a sudden power outage plunges the house into suffocating darkness. Your mother's voice on the phone is your only guide. But as her instructions grow more confusing and the unease deepens, even her words begin to feel fragile.</p>
+      <p class="tos-desc"><strong>The Obsessive Shadow</strong> is a survival horror game about a stalker you can't quite identify. With nothing but your eyes and a flashlight at your disposal, it's up to you to survive whatever horrific person or thing is out there watching you.</p>
+      <p class="tos-desc">You take on the role of Liam — a 9-year-old boy left alone in his home after a sudden power outage plunges the house into suffocating darkness. Your mother's voice on the phone is your only guide. But as her instructions grow more confusing and the unease deepens, even her words begin to feel fragile.</p>
 
-      <div class="ch-tags">
-        <span class="ch-tag ash">Psychological Horror</span><span class="ch-tag ash">Atmospheric</span>
-        <span class="ch-tag ash">Multiple Endings</span><span class="ch-tag ash">Story Rich</span>
-        <span class="ch-tag ash">First-Person</span><span class="ch-tag ash">VR / 6DOF</span>
-        <span class="ch-tag ash">Surreal</span><span class="ch-tag ash">Cinematic</span>
+      <div class="tos-tags">
+        <span class="tos-tag">Psychological Horror</span><span class="tos-tag">Atmospheric</span>
+        <span class="tos-tag">Multiple Endings</span><span class="tos-tag">Story Rich</span>
+        <span class="tos-tag">First-Person</span><span class="tos-tag">VR / 6DOF</span>
+        <span class="tos-tag">Surreal</span><span class="tos-tag">Cinematic</span>
       </div>
 
-      <div class="ch-actions">
-        <a href="https://www.youtube.com/watch?v=52iEhG1yzuY" target="_blank" class="ch-trailer-btn ash">
+      <div class="tos-actions">
+        <a href="https://www.youtube.com/watch?v=52iEhG1yzuY" target="_blank" rel="noopener" class="tos-btn accent">
           <span class="tri"></span> Watch Trailer
         </a>
-        <div class="ch-stores">
-          <a href="https://store.steampowered.com/app/2074360/The_Obsessive_Shadow/" target="_blank" class="ch-store-btn a-ash">
-            <svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.878 2.346-5.22 5.23-5.22 2.88 0 5.223 2.342 5.223 5.22 0 2.878-2.343 5.22-5.223 5.22h-.121l-4.106 2.941c0 .055.003.11.003.165 0 2.162-1.762 3.92-3.931 3.92-1.865 0-3.424-1.299-3.835-3.035l-4.597-1.903C2.093 21.037 6.581 24 11.979 24c6.624 0 11.998-5.373 11.998-12S18.603 0 11.979 0z"/></svg>
-            Get on Steam
+        <div class="tos-stores">
+          <a href="https://store.steampowered.com/app/2074360/The_Obsessive_Shadow/" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam
           </a>
-          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank" class="ch-store-btn a-ash">
-            <svg viewBox="0 0 24 24"><path d="M6.908 4C5.236 4 3.802 5.164 2.855 7.065 1.908 8.966 1.5 11.448 1.5 14c0 2.552.408 5.034 1.355 6.935C3.802 22.836 5.236 24 6.908 24c1.262 0 2.32-.646 3.294-1.716.974-1.07 1.91-2.666 2.846-4.568.936 1.902 1.872 3.498 2.846 4.568C16.868 23.354 17.926 24 19.188 24c1.672 0 3.106-1.164 4.053-3.065.947-1.901 1.259-4.383 1.259-6.935 0-2.552-.312-5.034-1.259-6.935C22.294 5.164 20.86 4 19.188 4c-1.458 0-2.715.916-3.773 2.312C14.357 7.708 13.37 9.576 12.5 11.674c-.87-2.098-1.857-3.966-2.915-5.362C8.527 4.916 7.27 4 5.812 4z"/></svg>
-            Meta Quest Store
+          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Meta Quest
           </a>
-          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank" class="ch-store-btn a-ash">
-            <svg viewBox="0 0 24 24"><path d="M8.984 2.596v17.547l3.915 1.857V6.688c0-.69.304-1.151.794-.991.636.22.76.848.76 1.537v5.815c2.304 1.146 4.019-.144 4.019-3.374 0-3.319-1.152-4.485-4.573-5.559-1.225-.381-3.181-.89-3.915-1.52zM2 17.326l5.613 1.93c1.761.607 2.397-.186 2.397-.186v-2.45l-5.516 1.91c-.717.248-1.04-.13-1.04-.524 0-.394.323-.772 1.04-1.02l5.516-1.91v-2.38L2 14.626v2.7zm15.857-2.854c-.75-.42-1.764-.492-2.735-.175l-2.211.762v2.38l2.71-.936c.717-.248 1.04.13 1.04.524 0 .394-.323.772-1.04 1.02l-2.71.936v2.45l2.211-.762c2.454-.847 3.525-2.756 2.735-6.2z"/></svg>
-            PlayStation Wishlist
+          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/playstation.svg" alt="" class="brand-mark" /> PlayStation
           </a>
-          <span class="ch-store-btn disabled">
-            <svg viewBox="0 0 24 24"><path d="M4.102 21.033C6.211 22.881 8.977 24 12 24c6.623 0 12-5.377 12-12 0-2.52-.784-4.86-2.122-6.791L4.102 21.033zm2.069-2.063L17.911 7.24C16.625 5.862 14.91 5 12 5c-3.866 0-7 3.134-7 7 0 2.91.862 4.625 2.171 5.97zM0 12C0 5.377 5.377 0 12 0c2.944 0 5.626 1.094 7.673 2.886L2.886 19.674A11.987 11.987 0 010 12z"/></svg>
-            Xbox — Coming Soon
+          <span class="tos-btn disabled">
+            <img src="../images/logos/xbox.svg" alt="" class="brand-mark" /> Xbox — Coming Soon
           </span>
         </div>
       </div>
@@ -659,282 +482,382 @@
   </div>
 </section>
 
-<div class="tos-sep red-sep"><span class="tos-sep-icon" style="background:var(--bg);">👁</span></div>
+<hr class="tos-rule" />
 
 <!-- ══════════════════════════════════════════════
      CHAPTER 2
 ══════════════════════════════════════════════ -->
-<section class="tos-chapter alt" id="chapter2">
-  <!-- ambient video: tos-ch2-bg.mp4 in root folder -->
-  <video class="chapter-ambient" autoplay muted loop playsinline preload="none">
+<section class="tos-section alt red flip" id="chapter2">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
     <source src="../tos-ch2-bg.mp4" type="video/mp4" />
   </video>
-  <div class="chapter-ambient-fade"></div>
+  <div class="tos-bg-fade"></div>
 
-  <div class="chapter-body">
-    <div class="ch-art reveal">
-      <div class="ch-art-frame ch2-frame" data-num="II">
-        <img src="../images/tos2-cover.jpg" alt="The Obsessive Shadow Chapter 2 cover art" />
-      </div>
-      <div class="ch-corner tl c-red"></div><div class="ch-corner tr c-red"></div>
-      <div class="ch-corner bl c-red"></div><div class="ch-corner br c-red"></div>
-    </div>
+  <div class="tos-body">
+    <div class="tos-copy reveal">
+      <div class="tos-eyebrow">Chapter 02 // 2026</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Chapter 2</span></h2>
+      <div class="tos-sub">Survival Horror // DLC // Demo Available Now</div>
+      <span class="tos-status dev">Demo Available Now</span>
 
-    <div class="ch-copy reveal d1">
-      <div class="ch-eyebrow red">Chapter 02 // 2026</div>
-      <h2 class="ch-heading red">The Obsessive Shadow<br/>— <span class="a-red">Chapter 2</span></h2>
-      <div class="ch-sub red">Survival Horror // DLC // Demo Available Now</div>
-      <span class="ch-status demo">Demo Available Now</span>
+      <p class="tos-desc">Set <strong>20 years after</strong> the events of Chapter 1. After hearing ghost stories surrounding a cul-de-sac abandoned since the '80s, 16-year-old Justin takes on a dare from his friend — spend the night in the ruins of what was once a thriving community.</p>
+      <p class="tos-desc">Uncover the truth of what really happened all those years ago. Survive until morning.<br /><br /><strong>Note:</strong> requires the base game on Steam. Coming to PS5, PSVR2, Meta Quest, Steam, and Xbox in 2026.</p>
 
-      <p class="ch-desc">Set <strong>20 years after</strong> the events of Chapter 1. After hearing ghost stories surrounding a cul-de-sac abandoned since the '80s, 16-year-old Justin takes on a dare from his friend — spend the night in the ruins of what was once a thriving community.</p>
-      <p class="ch-desc">Uncover the truth of what really happened all those years ago. Survive until morning.<br/><br/><strong>Note:</strong> Requires the base game on Steam. Coming to PS5, PSVR2, Meta Quest, Steam, and Xbox in 2026.</p>
-
-      <div class="ch-tags">
-        <span class="ch-tag red">Psychological Horror</span><span class="ch-tag red">Atmospheric</span>
-        <span class="ch-tag red">Multiple Endings</span><span class="ch-tag red">Story Rich</span>
-        <span class="ch-tag red">First-Person</span><span class="ch-tag red">VR / 6DOF</span>
-        <span class="ch-tag red">Surreal</span><span class="ch-tag red">Cinematic</span>
+      <div class="tos-tags">
+        <span class="tos-tag">Psychological Horror</span><span class="tos-tag">Atmospheric</span>
+        <span class="tos-tag">Multiple Endings</span><span class="tos-tag">Story Rich</span>
+        <span class="tos-tag">First-Person</span><span class="tos-tag">VR / 6DOF</span>
+        <span class="tos-tag">Surreal</span><span class="tos-tag">Cinematic</span>
       </div>
 
-      <div class="ch-actions">
-        <a href="https://www.youtube.com/watch?v=tMlidcFjxQA" target="_blank" class="ch-trailer-btn red">
+      <div class="tos-actions">
+        <a href="https://www.youtube.com/watch?v=tMlidcFjxQA" target="_blank" rel="noopener" class="tos-btn accent">
           <span class="tri"></span> Watch Trailer
         </a>
-        <div class="ch-stores">
-          <a href="https://store.steampowered.com/app/3970390/The_Obsessive_Shadow__Chapter_2/" target="_blank" class="ch-store-btn a-red">
-            <svg viewBox="0 0 24 24"><path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.878 2.346-5.22 5.23-5.22 2.88 0 5.223 2.342 5.223 5.22 0 2.878-2.343 5.22-5.223 5.22h-.121l-4.106 2.941c0 .055.003.11.003.165 0 2.162-1.762 3.92-3.931 3.92-1.865 0-3.424-1.299-3.835-3.035l-4.597-1.903C2.093 21.037 6.581 24 11.979 24c6.624 0 11.998-5.373 11.998-12S18.603 0 11.979 0z"/></svg>
-            Steam Wishlist
+        <div class="tos-stores">
+          <a href="https://store.steampowered.com/app/3970390/The_Obsessive_Shadow__Chapter_2/" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam Wishlist
           </a>
-          <a href="https://www.meta.com/s/6nfMmUqye" target="_blank" class="ch-store-btn a-red">
-            <svg viewBox="0 0 24 24"><path d="M6.908 4C5.236 4 3.802 5.164 2.855 7.065 1.908 8.966 1.5 11.448 1.5 14c0 2.552.408 5.034 1.355 6.935C3.802 22.836 5.236 24 6.908 24c1.262 0 2.32-.646 3.294-1.716.974-1.07 1.91-2.666 2.846-4.568.936 1.902 1.872 3.498 2.846 4.568C16.868 23.354 17.926 24 19.188 24c1.672 0 3.106-1.164 4.053-3.065.947-1.901 1.259-4.383 1.259-6.935 0-2.552-.312-5.034-1.259-6.935C22.294 5.164 20.86 4 19.188 4c-1.458 0-2.715.916-3.773 2.312C14.357 7.708 13.37 9.576 12.5 11.674c-.87-2.098-1.857-3.966-2.915-5.362C8.527 4.916 7.27 4 5.812 4z"/></svg>
-            Quest Demo
+          <a href="https://www.meta.com/s/6nfMmUqye" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Quest Demo
           </a>
-          <span class="ch-store-btn disabled">
-            <svg viewBox="0 0 24 24"><path d="M4.102 21.033C6.211 22.881 8.977 24 12 24c6.623 0 12-5.377 12-12 0-2.52-.784-4.86-2.122-6.791L4.102 21.033zm2.069-2.063L17.911 7.24C16.625 5.862 14.91 5 12 5c-3.866 0-7 3.134-7 7 0 2.91.862 4.625 2.171 5.97zM0 12C0 5.377 5.377 0 12 0c2.944 0 5.626 1.094 7.673 2.886L2.886 19.674A11.987 11.987 0 010 12z"/></svg>
-            Xbox — Coming Soon
+          <span class="tos-btn disabled">
+            <img src="../images/logos/xbox.svg" alt="" class="brand-mark" /> Xbox — Coming Soon
           </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="tos-art reveal d1">
+      <div class="art-frame" data-num="II">
+        <img src="../images/tos2-cover.jpg" alt="The Obsessive Shadow Chapter 2 cover art" />
+      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
+    </div>
+  </div>
+</section>
+
+<hr class="tos-rule" />
+
+<!-- ══════════════════════════════════════════════
+     FORMER RESIDENTS — still image backdrop
+══════════════════════════════════════════════ -->
+<section class="tos-section" id="former-residents">
+  <div class="tos-bg-img" style="background-image:url('../images/tos-former-residents-bg.jpg');"></div>
+  <div class="tos-bg-fade"></div>
+
+  <div class="tos-body">
+    <div class="tos-art reveal">
+      <div class="art-frame wide">
+        <img src="../images/tos-former-residents.jpg" alt="The Obsessive Shadow: Former Residents" />
+      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
+    </div>
+
+    <div class="tos-copy reveal d1">
+      <div class="tos-eyebrow">Spin-Off // Planned for 2027</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Former Residents</span></h2>
+      <div class="tos-sub">2D Horror Narrative // Top-Down // Pixel Art</div>
+      <span class="tos-status dev">In Development</span>
+
+      <p class="tos-desc">Knock knock. Who's there? <strong>The Obsessive Shadow is lurking.</strong></p>
+      <p class="tos-desc">Uncover the story of what happened to the former residents of Old Diamond Drive — a once-thriving community later left abandoned and in ruin. Each night puts you behind the eyes of a different resident being stalked and watched, and each of their stories threads back into the same pivotal week the neighborhood never came back from.</p>
+      <p class="tos-desc">Face what's in the shadows and stay alert. Watch the windows. Watch the doors. <strong>You are being watched at every turn.</strong></p>
+
+      <div class="tos-tags">
+        <span class="tos-tag">2D / Top-Down</span><span class="tos-tag">Pixel Graphics</span>
+        <span class="tos-tag">1980s</span><span class="tos-tag">Story Rich</span>
+        <span class="tos-tag">Exploration</span><span class="tos-tag">Atmospheric</span>
+        <span class="tos-tag">Single-Player</span>
+      </div>
+
+      <div class="tos-actions">
+        <div class="tos-stores">
+          <a href="https://store.steampowered.com/app/4923040/The_Obsessive_Shadow_Former_Residents/" target="_blank" rel="noopener" class="tos-btn accent">
+            <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam Wishlist
+          </a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<div class="tos-sep red-sep"><span class="tos-sep-icon" style="background:var(--bg);">▣</span></div>
+<hr class="tos-rule" />
 
 <!-- ══════════════════════════════════════════════
      MIXED REALITY — HOME INVASION
-     IMAGE:  images/tos-mr-home-invasion.jpg   (passthrough key art / screenshot, ~16:9)
-     OPTIONAL BG VIDEO: tos-mr-bg.mp4 in the pmh-interactive/ root folder
-     EDIT BELOW: the status pill, the store link, and any release wording are
-     placeholders — swap them out when the title is announced.
 ══════════════════════════════════════════════ -->
-<section class="tos-special bg" id="mixed-reality" data-watermark="MR">
-  <video class="chapter-ambient" autoplay muted loop playsinline preload="none" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35;">
+<section class="tos-section alt flip" id="mixed-reality">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
     <source src="../tos-mr-bg.mp4" type="video/mp4" />
   </video>
-  <div class="chapter-ambient-fade"></div>
+  <div class="tos-bg-fade"></div>
 
-  <div class="special-body">
-    <div class="reveal">
-      <div class="ch-eyebrow ash">Mixed Reality // Meta Quest 3 &amp; 3S</div>
-      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">Mixed Reality: Home Invasion</span></h2>
-      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Passthrough Horror // Room-Scale // Single-Player</div>
-      <!-- EDIT status: swap class/text for "live" + "Available Now", "demo" + "Demo Available", etc. -->
-      <span class="ch-status demo" style="margin-bottom:1.5rem;">In Development</span>
+  <div class="tos-body">
+    <div class="tos-copy reveal">
+      <div class="tos-eyebrow">Mixed Reality // Meta Quest 3 &amp; 3S</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Home Invasion</span></h2>
+      <div class="tos-sub">Passthrough Horror // Room-Scale // Single-Player</div>
+      <span class="tos-status dev">In Development</span>
 
-      <p class="ch-desc">The Shadow steps out of the screen and into your living room. <strong>Home Invasion</strong> uses your headset's passthrough cameras to turn your real space into the playfield — the entity stalks the room you're actually standing in, slipping past your furniture and feeding on the dark.</p>
-      <p class="ch-desc">Keep it in the light. Watch the corners of your real walls. When the lights cut out, the only thing between you and it is where you choose to point your flashlight. <strong>You're no longer playing in its house. It's in yours.</strong></p>
+      <p class="tos-desc">The Shadow steps out of the screen and into your living room. <strong>Home Invasion</strong> uses your headset's passthrough cameras to turn your real space into the playfield — the entity stalks the room you're actually standing in, slipping past your furniture and feeding on the dark.</p>
+      <p class="tos-desc">Keep it in the light. Watch the corners of your real walls. When the lights cut out, the only thing between you and it is where you choose to point your flashlight. <strong>You're no longer playing in its house. It's in yours.</strong></p>
 
-      <div class="ch-tags" style="margin-bottom:1.6rem;">
-        <span class="ch-tag ash">Mixed Reality</span>
-        <span class="ch-tag ash">Passthrough</span>
-        <span class="ch-tag ash">Room-Scale</span>
-        <span class="ch-tag ash">Meta Quest 3 / 3S</span>
-        <span class="ch-tag ash">Single-Player</span>
-        <span class="ch-tag ash">Psychological Horror</span>
+      <div class="tos-tags">
+        <span class="tos-tag">Mixed Reality</span><span class="tos-tag">Passthrough</span>
+        <span class="tos-tag">Room-Scale</span><span class="tos-tag">Meta Quest 3 / 3S</span>
+        <span class="tos-tag">Single-Player</span><span class="tos-tag">Psychological Horror</span>
       </div>
 
-      <div class="special-links">
-        <a href="https://www.youtube.com/watch?v=Qo_7RzvBns8" target="_blank" class="sp-btn">
-          <span style="display:inline-block;width:0;height:0;border-style:solid;border-width:5px 0 5px 9px;border-color:transparent transparent transparent currentColor;flex-shrink:0;"></span>
-          &nbsp;Watch Trailer
+      <div class="tos-actions">
+        <a href="https://www.youtube.com/watch?v=Qo_7RzvBns8" target="_blank" rel="noopener" class="tos-btn accent">
+          <span class="tri"></span> Watch Trailer
         </a>
-        <!-- EDIT: replace # with the Meta Quest store page when live -->
-        <a href="#" class="sp-btn">Store Page &mdash; Coming Soon</a>
+        <div class="tos-stores">
+          <span class="tos-btn disabled">
+            <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Store Page — Coming Soon
+          </span>
+        </div>
       </div>
     </div>
 
-    <div class="special-media reveal d1">
-      <img
-        src="../images/tos-mr-home-invasion.jpg"
-        alt="The Obsessive Shadow Mixed Reality: Home Invasion"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-      />
-      <div class="special-placeholder" style="display:none;">
-        <span class="sp-icon">🩻</span>
-        <span>Add passthrough key art<br/><code style="font-size:0.62em;opacity:0.5;">images/tos-mr-home-invasion.jpg</code></span>
+    <div class="tos-art reveal d1">
+      <div class="art-frame wide">
+        <img src="../images/tos-mr-home-invasion.jpg" alt="The Obsessive Shadow Mixed Reality: Home Invasion" />
       </div>
-      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
-      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
   </div>
 </section>
 
-<div class="tos-sep"><span class="tos-sep-icon">◈</span></div>
+<hr class="tos-rule" />
 
 <!-- ══════════════════════════════════════════════
      FORTNITE
 ══════════════════════════════════════════════ -->
-<section class="tos-special bg2" id="fortnite" data-watermark="FORTNITE">
-  <!--
-    FORTNITE BG VIDEO: drop tos-fortnite-bg.mp4 in the pmh-interactive/ root folder
-  -->
-  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35;">
+<section class="tos-section ice" id="fortnite">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
     <source src="../tos-fortnite-bg.mp4" type="video/mp4" />
   </video>
-  <div class="special-body">
-    <div class="reveal">
-      <div class="ch-eyebrow ash">Fortnite Creative // UEFN</div>
-      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">in Fortnite</span></h2>
-      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Official Fortnite Creative Map</div>
-      <p class="ch-desc">After watching an emergency alert on the TV about a mysterious figure, the power shuts off in the house. The Shadow has followed you home. It is trying to break into your house. <strong>IT HATES THE LIGHT. LISTEN FOR THE KNOCKS. DONT MOVE.</strong> Will the shadow consume you?</p>
-      <div class="ch-tags" style="margin-bottom:1.4rem;">
-        <span class="ch-tag ash">1–4 Players</span>
-        <span class="ch-tag ash">Solo or Co-Op</span>
-        <span class="ch-tag ash">Unique Horror Gameplay</span>
-        <span class="ch-tag ash">UEFN / Creative 2.0</span>
-        <span class="ch-tag ash">Turn Up Your Volume</span>
-        <span class="ch-tag ash">High Graphics Recommended</span>
+  <div class="tos-bg-fade"></div>
+
+  <div class="tos-body">
+    <div class="tos-art reveal">
+      <div class="art-frame wide">
+        <img src="../images/tos-fortnite.jpg" alt="The Obsessive Shadow in Fortnite" />
       </div>
-      <div class="island-code" id="fnCode" title="Click to copy">Island Code: 3905-4332-3383</div>
-      <span class="island-hint">Click to copy // Paste in Fortnite Creative Island Select</span>
-      <div class="special-links">
-        <a href="https://www.fortnite.com/creative/island/3905-4332-3383" target="_blank" class="sp-btn fn">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
-          View on Fortnite.com
-        </a>
-        <a href="https://fortnite.gg/island?code=3905-4332-3383" target="_blank" class="sp-btn">fortnite.gg &rarr;</a>
-      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
-    <div class="special-media reveal d1">
-      <img
-        src="../images/tos-fortnite.jpg"
-        alt="The Obsessive Shadow in Fortnite"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-      />
-      <div class="special-placeholder" style="display:none;">
-        <span class="sp-icon">🎮</span>
-        <span>Add a map screenshot<br/><code style="font-size:0.62em;opacity:0.5;">images/tos-fortnite.jpg</code></span>
+
+    <div class="tos-copy reveal d1">
+      <div class="tos-eyebrow">Fortnite Creative // UEFN</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>in Fortnite</span></h2>
+      <div class="tos-sub">Official Fortnite Creative Map</div>
+
+      <p class="tos-desc">After watching an emergency alert on the TV about a mysterious figure, the power shuts off in the house. The Shadow has followed you home, and it is trying to break in. <strong>It hates the light. Listen for the knocks. Don't move.</strong> Will the Shadow consume you?</p>
+
+      <div class="tos-tags">
+        <span class="tos-tag">1–4 Players</span><span class="tos-tag">Solo or Co-Op</span>
+        <span class="tos-tag">UEFN / Creative 2.0</span><span class="tos-tag">Turn Up Your Volume</span>
+        <span class="tos-tag">High Graphics Recommended</span>
       </div>
-      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
-      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+
+      <div class="island-code" id="fnCode" title="Click to copy">Island Code: 3905-4332-3383</div>
+      <span class="island-hint">Click to copy // Paste in Fortnite Creative island select</span>
+
+      <div class="tos-actions">
+        <div class="tos-stores">
+          <a href="https://www.fortnite.com/play/island/3905-4332-3383" target="_blank" rel="noopener" class="tos-btn accent">
+            <img src="../images/logos/epicgames.svg" alt="" class="brand-mark" /> Play on Fortnite.com
+          </a>
+          <a href="https://fortnite.gg/island?code=3905-4332-3383" target="_blank" rel="noopener" class="tos-btn">fortnite.gg</a>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<div class="tos-sep"><span class="tos-sep-icon">🎬</span></div>
+<hr class="tos-rule" />
 
 <!-- ══════════════════════════════════════════════
-     VR ARCADE / COMMERCIAL
+     MONSTERS AND MAZES CROSSOVER
 ══════════════════════════════════════════════ -->
-<section class="tos-special bg2" id="arcade" data-watermark="ARCADE">
-  <div class="special-body">
-    <div class="reveal">
-      <div class="ch-eyebrow ash">Commercial Licensing // VR Arcades</div>
-      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">in Your Venue</span></h2>
-      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Available via SpringboardVR &amp; SynthesisVR</div>
-      <p class="ch-desc">
-        <strong>The Obsessive Shadow</strong> is available for commercial licensing through <strong>SpringboardVR</strong> and <strong>SynthesisVR</strong> — two of the leading VR arcade and location-based entertainment platforms. Bring the horror to your venue and let your customers experience it for themselves.
-      </p>
-      <p class="ch-desc">
-        If you operate a VR arcade, entertainment center, or public space and are interested in licensing The Obsessive Shadow, reach out through either platform below.
-      </p>
-      <div class="ch-tags" style="margin-bottom:1.6rem;">
-        <span class="ch-tag ash">VR Arcade</span>
-        <span class="ch-tag ash">Location-Based Entertainment</span>
-        <span class="ch-tag ash">Commercial License</span>
-        <span class="ch-tag ash">SpringboardVR</span>
-        <span class="ch-tag ash">SynthesisVR</span>
+<section class="tos-section alt flip" id="monsters-and-mazes">
+  <div class="tos-body">
+    <div class="tos-copy reveal">
+      <div class="tos-eyebrow">Crossover // Meta Quest</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>&times; Monsters and Mazes</span></h2>
+      <div class="tos-sub">Official Crossover // Multiplayer VR Horror</div>
+
+      <p class="tos-desc">The Shadow is loose in someone else's game. <strong>Monsters and Mazes</strong> is a multiplayer VR horror game on Meta Quest where one player takes the role of the monster and everyone else has to work the maze and get out before they're caught.</p>
+      <p class="tos-desc">Our crossover brings <strong>a free Obsessive Shadow monster skin</strong> into it — so the thing that spent Chapter 1 circling Liam's house can now come for you and your friends inside the <strong>Toy Factory</strong>. Same rules as always: it hates the light, and it is patient.</p>
+
+      <div class="tos-tags">
+        <span class="tos-tag">Crossover</span><span class="tos-tag">Multiplayer</span>
+        <span class="tos-tag">Asymmetric Horror</span><span class="tos-tag">Meta Quest</span>
+        <span class="tos-tag">Free Monster Skin</span>
       </div>
-      <div class="special-links">
-        <a href="https://deployreality.com/synthesisvr/games/the-obsessive-shadow" target="_blank" class="sp-btn fn">
-          SpringboardVR →
-        </a>
-        <a href="https://deployreality.com/synthesisvr/games/the-obsessive-shadow" target="_blank" class="sp-btn">
-          SynthesisVR →
-        </a>
+
+      <div class="tos-actions">
+        <div class="tos-stores">
+          <a href="https://www.meta.com/en-gb/experiences/monsters-and-mazes-toy-factory/9972710149415118/" target="_blank" rel="noopener" class="tos-btn accent">
+            <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Play on Meta Quest
+          </a>
+        </div>
       </div>
     </div>
 
-    <div class="special-media reveal d1">
-      <img src="../images/tos-arcade.png" alt="The Obsessive Shadow at a VR Arcade" />
-      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
-      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+    <div class="tos-art reveal d1">
+      <div class="collab-lockup">
+        <div class="cl-name">The Obsessive Shadow</div>
+        <div class="cl-x">&times;</div>
+        <div class="cl-name">Monsters and Mazes</div>
+        <div class="cl-tag">Toy Factory // Meta Quest</div>
+      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
   </div>
 </section>
 
-<div class="tos-sep"><span class="tos-sep-icon">🎬</span></div>
+<hr class="tos-rule" />
+
+<!-- ══════════════════════════════════════════════
+     VR ARCADE / COMMERCIAL LICENSING
+══════════════════════════════════════════════ -->
+<section class="tos-section" id="arcade">
+  <div class="tos-body">
+    <div class="tos-art reveal">
+      <div class="art-frame">
+        <img src="../images/tos-arcade.png" alt="The Obsessive Shadow at a VR arcade" />
+      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
+    </div>
+
+    <div class="tos-copy reveal d1">
+      <div class="tos-eyebrow">Commercial Licensing // VR Arcades</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>in Your Venue</span></h2>
+      <div class="tos-sub">Available via SpringboardVR &amp; SynthesisVR</div>
+
+      <p class="tos-desc"><strong>The Obsessive Shadow</strong> is available for commercial licensing through <strong>SpringboardVR</strong> and <strong>SynthesisVR</strong> — two of the leading VR arcade and location-based entertainment platforms. Bring the horror to your venue and let your customers experience it for themselves.</p>
+      <p class="tos-desc">If you operate a VR arcade, entertainment center, or public space and are interested in licensing The Obsessive Shadow, reach out through either platform below.</p>
+
+      <div class="tos-tags">
+        <span class="tos-tag">VR Arcade</span><span class="tos-tag">Location-Based Entertainment</span>
+        <span class="tos-tag">Commercial License</span><span class="tos-tag">SpringboardVR</span>
+        <span class="tos-tag">SynthesisVR</span>
+      </div>
+
+      <div class="tos-actions">
+        <div class="tos-stores">
+          <a href="https://deployreality.com/synthesisvr/games/the-obsessive-shadow" target="_blank" rel="noopener" class="tos-btn accent">SpringboardVR</a>
+          <a href="https://deployreality.com/synthesisvr/games/the-obsessive-shadow" target="_blank" rel="noopener" class="tos-btn">SynthesisVR</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="tos-rule" />
 
 <!-- ══════════════════════════════════════════════
      SHORT FILM
 ══════════════════════════════════════════════ -->
-<section class="tos-special bg flip" id="film" data-watermark="FILM">
-  <!--
-    FILM BG VIDEO: drop tos-film-bg.mp4 in the pmh-interactive/ root folder
-  -->
-  <video class="chapter-ambient" autoplay muted loop playsinline style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;opacity:0.35;">
+<section class="tos-section alt flip" id="film">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
     <source src="../tos-film-bg.mp4" type="video/mp4" />
   </video>
-  <div class="special-body">
-    <div class="reveal">
-      <div class="ch-eyebrow ash">Short Film Adaptation // Out Now</div>
-      <h2 class="ch-heading ash" style="margin-bottom:0.5rem;">The Obsessive Shadow<br/><span class="a-ash">— Official Shortfilm Adaptation</span></h2>
-      <div class="ch-sub ash" style="margin-bottom:1.4rem;">Official Short Film</div>
-      <span class="ch-status live" style="margin-bottom:1.5rem;">Out Now</span>
-      <p class="ch-desc">Based on the survival indie horror game, <strong>The Obsessive Shadow</strong> delivers a tense, atmospheric story of a mother fighting to save her son after a chilling message on TV warns of a stalker in the dark — and a neighbor whose past may hold the key to survival.</p>
-      <p class="ch-desc">When an emergency broadcast disrupts the night, Nicole's (<strong>Beth Waugh</strong>; Need for Speed, 6 Below) son becomes trapped as something sinister stalks their home. Her neighbor Carl (<strong>Joseph Poliquin</strong>; Five Nights at Freddy's, Greyhound, The Purge) insists he's come face to face with this evil in the past, leaving Nicole to decide if she can trust him to survive the night.</p>
-      <div class="special-links">
-        <a href="https://www.youtube.com/watch?v=AgfO5FS62SE" target="_blank" class="watch-film-btn">
+  <div class="tos-bg-fade"></div>
+
+  <div class="tos-body">
+    <div class="tos-copy reveal">
+      <div class="tos-eyebrow">Short Film Adaptation // Out Now</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Official Short Film</span></h2>
+      <div class="tos-sub">Live Action // Based on Chapter 1</div>
+      <span class="tos-status live">Out Now</span>
+
+      <p class="tos-desc">Based on the survival indie horror game, <strong>The Obsessive Shadow</strong> delivers a tense, atmospheric story of a mother fighting to save her son after a chilling message on TV warns of a stalker in the dark — and a neighbor whose past may hold the key to survival.</p>
+      <p class="tos-desc">When an emergency broadcast disrupts the night, Nicole's (<strong>Beth Waugh</strong>; Need for Speed, 6 Below) son becomes trapped as something sinister stalks their home. Her neighbor Carl (<strong>Joseph Poliquin</strong>; Five Nights at Freddy's, Greyhound, The Purge) insists he's come face to face with this evil in the past, leaving Nicole to decide if she can trust him to survive the night.</p>
+
+      <div class="tos-actions">
+        <a href="https://www.youtube.com/watch?v=7kWwK-RNm6M" target="_blank" rel="noopener" class="tos-btn watch">
           <span class="tri"></span> Watch the Film
-        </a>
-        <a href="https://www.youtube.com/watch?v=jkV1UC5QD30" target="_blank" class="sp-btn">
-          <span style="display:inline-block;width:0;height:0;border-style:solid;border-width:4px 0 4px 7px;border-color:transparent transparent transparent currentColor;flex-shrink:0;"></span>
-          &nbsp;Watch Trailer
         </a>
       </div>
     </div>
 
-    <!-- Film still -->
-    <div class="special-media reveal d1">
-      <img
-        src="../images/tos-film-still.jpg"
-        alt="The Obsessive Shadow — Official Shortfilm Adaptation"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-      />
-      <div class="special-placeholder" style="display:none;">
-        <span class="sp-icon">🎥</span>
-        <span>Drop a still from the short film here<br/><code style="font-size:0.62em;opacity:0.5;">images/tos-film-still.jpg</code></span>
+    <div class="tos-art reveal d1">
+      <div class="art-frame wide">
+        <img src="../images/tos-film-still.jpg" alt="The Obsessive Shadow — Official Short Film Adaptation" />
       </div>
-      <div class="ch-corner tl c-ash"></div><div class="ch-corner tr c-ash"></div>
-      <div class="ch-corner bl c-ash"></div><div class="ch-corner br c-ash"></div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
   </div>
 </section>
 
+<hr class="tos-rule" />
+
+<!-- ══════════════════════════════════════════════
+     SOUNDTRACK
+══════════════════════════════════════════════ -->
+<section class="tos-section teal" id="soundtrack">
+  <div class="tos-body">
+    <div class="tos-art reveal">
+      <div class="art-frame">
+        <img src="../images/tos-soundtrack.jpg" alt="The Obsessive Shadow official soundtrack cover art" />
+      </div>
+      <div class="art-corner tl"></div><div class="art-corner tr"></div>
+      <div class="art-corner bl"></div><div class="art-corner br"></div>
+    </div>
+
+    <div class="tos-copy reveal d1">
+      <div class="tos-eyebrow">Original Soundtrack // Out Now</div>
+      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Soundtrack</span></h2>
+      <div class="tos-sub">Streaming on Every Major Platform</div>
+      <span class="tos-status live">Out Now</span>
+
+      <p class="tos-desc">The official soundtrack to <strong>The Obsessive Shadow</strong> — the dread, the static and the quiet stretches between the knocks, pulled out of the game and put on repeat.</p>
+      <p class="tos-desc"><strong>Available on all major streaming platforms</strong>, including Spotify, Apple Music, YouTube Music, Amazon Music, Deezer, and Tidal.</p>
+
+      <div class="tos-tags">
+        <span class="tos-tag">Original Score</span><span class="tos-tag">Horror Ambient</span>
+        <span class="tos-tag">Streaming Everywhere</span>
+      </div>
+
+      <div class="tos-actions">
+        <div class="tos-stores">
+          <a href="https://open.spotify.com/album/6KUqpoexIesyzQSedoi9Ok" target="_blank" rel="noopener" class="tos-btn accent">
+            <img src="../images/logos/spotify.svg" alt="" class="brand-mark" /> Spotify
+          </a>
+          <a href="https://music.apple.com/us/album/the-obsessive-shadow-official-videogame-soundtrack/1805462783" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/applemusic.svg" alt="" class="brand-mark" /> Apple Music
+          </a>
+          <a href="https://music.youtube.com/search?q=The+Obsessive+Shadow+Official+Videogame+Soundtrack" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/youtubemusic.svg" alt="" class="brand-mark" /> YouTube Music
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
 <!-- ══════════════════════════════════════════════
      MERCH
 ══════════════════════════════════════════════ -->
 <div class="tos-merch" id="merch">
   <div class="tos-merch-inner reveal">
-    <div class="label" style="justify-content:center;color:var(--ash);margin-bottom:0.8rem;">Official Merch Store</div>
+    <div class="label centered" style="color:var(--ash);">Official Merch Store</div>
     <h2>The Obsessive Shadow Merch</h2>
     <p>Shop official merchandise for The Obsessive Shadow.</p>
-    <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" class="btn btn-ash">[ Shop the Store &rarr; ]</a>
+    <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn btn-ash">Shop the Store</a>
   </div>
 </div>
-
 
 <!-- ── FOOTER ── -->
 <footer>
@@ -942,20 +865,30 @@
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-logo-row">
-          <img src="../PMH_Interactive_ICON_1.png" alt="PMH Interactive" class="footer-logo-img" />
+          <img src="../PMH_Interactive_ICON_1.png" alt="" class="footer-logo-img" />
           <div class="footer-logo-name">PMH <span>Interactive</span></div>
         </div>
         <p>Independent game studio crafting immersive horror and VR experiences. Based in Tennessee.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/expodevig" target="_blank" rel="noopener"><img src="../images/logos/instagram.svg" alt="Instagram" class="brand-mark" /></a>
+          <a href="https://www.twitter.com/pmhinteractive" target="_blank" rel="noopener"><img src="../images/logos/x.svg" alt="Twitter / X" class="brand-mark" /></a>
+          <a href="https://youtube.com/@ExpoDev" target="_blank" rel="noopener"><img src="../images/logos/youtube.svg" alt="YouTube" class="brand-mark" /></a>
+          <a href="https://tiktok.com/@expodev" target="_blank" rel="noopener"><img src="../images/logos/tiktok.svg" alt="TikTok" class="brand-mark" /></a>
+          <a href="https://discord.gg/FxBXv5bDPJ" target="_blank" rel="noopener"><img src="../images/logos/discord.svg" alt="Discord" class="brand-mark" /></a>
+        </div>
       </div>
       <div class="footer-cols">
         <div class="footer-col">
           <h4>On This Page</h4>
           <a href="#chapter1">Chapter 1</a>
           <a href="#chapter2">Chapter 2</a>
+          <a href="#former-residents">Former Residents</a>
           <a href="#mixed-reality">Mixed Reality</a>
           <a href="#fortnite">Fortnite Map</a>
+          <a href="#monsters-and-mazes">Monsters and Mazes</a>
           <a href="#arcade">VR Arcades</a>
           <a href="#film">Short Film</a>
+          <a href="#soundtrack">Soundtrack</a>
           <a href="#merch">Merch</a>
         </div>
         <div class="footer-col">
@@ -965,14 +898,14 @@
           <a href="../index.html#contact">Contact</a>
         </div>
         <div class="footer-col">
-          <h4>Legal</h4>
-          <a href="privacy.html">Privacy Policy</a>
+          <h4>Platforms</h4>
+          <a href="https://store.steampowered.com/app/2074360/The_Obsessive_Shadow/" target="_blank" rel="noopener">Steam</a>
+          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank" rel="noopener">Meta Quest</a>
+          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank" rel="noopener">PlayStation</a>
         </div>
         <div class="footer-col">
-          <h4>Platforms</h4>
-          <a href="https://store.steampowered.com/app/2074360/" target="_blank">Steam</a>
-          <a href="https://www.meta.com/experiences/app/9256493144471948/" target="_blank">Meta Quest</a>
-          <a href="https://store.playstation.com/en-us/concept/10013882" target="_blank">PlayStation</a>
+          <h4>Legal</h4>
+          <a href="privacy.html">Privacy Policy</a>
         </div>
       </div>
     </div>
@@ -985,114 +918,85 @@
 
 <script src="../js/main.js"></script>
 <script>
-  /* ─────────────────────────────────────────────────────────────
-     PAUSE AMBIENT VIDEOS WHEN OFF-SCREEN
-     Stops GPU decode cost for videos the user can't see.
-  ───────────────────────────────────────────────────────────── */
-  (function() {
-    const videos = document.querySelectorAll('video');
+  /* ─────────────────────────────────────────────
+     Pause ambient videos while off-screen
+  ───────────────────────────────────────────── */
+  (function () {
     if (!('IntersectionObserver' in window)) return;
     const vo = new IntersectionObserver((entries) => {
       entries.forEach(e => {
         const v = e.target;
-        if (e.isIntersecting) { if (v.paused) v.play().catch(()=>{}); }
-        else                  { if (!v.paused) v.pause(); }
+        if (e.isIntersecting) { if (v.paused) v.play().catch(() => {}); }
+        else if (!v.paused)   { v.pause(); }
       });
-    }, { rootMargin: '200px' }); // start playing 200px before entering view
-    videos.forEach(v => vo.observe(v));
+    }, { rootMargin: '200px' });
+    document.querySelectorAll('video').forEach(v => vo.observe(v));
   })();
 
-  /* ─────────────────────────────────────────────────────────────
-     ISLAND CODE COPY
-  ───────────────────────────────────────────────────────────── */
-  const fnCode = document.getElementById('fnCode');
-  if (fnCode) {
+  /* ─────────────────────────────────────────────
+     Island code — click to copy
+  ───────────────────────────────────────────── */
+  (function () {
+    const fnCode = document.getElementById('fnCode');
+    if (!fnCode || !navigator.clipboard) return;
     fnCode.addEventListener('click', () => {
       navigator.clipboard.writeText('3905-4332-3383').then(() => {
-        const orig = fnCode.textContent;
-        fnCode.textContent = '✓ Copied!';
-        fnCode.style.color = 'var(--teal)';
-        fnCode.style.borderColor = 'rgba(0,200,150,0.3)';
-        fnCode.style.background = 'rgba(0,200,150,0.08)';
-        setTimeout(() => {
-          fnCode.textContent = orig;
-          fnCode.style.color = '';
-          fnCode.style.borderColor = '';
-          fnCode.style.background = '';
-        }, 2200);
-      });
+        const original = fnCode.textContent;
+        fnCode.textContent = 'Copied';
+        setTimeout(() => { fnCode.textContent = original; }, 2000);
+      }).catch(() => {});
     });
-  }
+  })();
 
-  /* ─────────────────────────────────────────────────────────────
-     VHS ENGINE — lean edition
-     Only handles: film grain (pre-baked frames) + rare glitch flash
-     Everything else is CSS. Runs at max 24fps. Pauses when tab hidden.
-     Skips entirely on mobile with coarse pointer (touch) + small screen.
-  ───────────────────────────────────────────────────────────── */
+  /* ─────────────────────────────────────────────
+     VHS grain + occasional dropout.
+     Half-res canvas, capped at 24fps, pauses when
+     the tab is hidden, skipped entirely on mobile.
+  ───────────────────────────────────────────── */
   (function () {
-    const isMobile = window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches;
-    const canvas   = document.getElementById('vhs-canvas');
+    const canvas = document.getElementById('vhs-canvas');
     if (!canvas) return;
-
-    // On mobile: hide canvas entirely — CSS layers are enough
-    if (isMobile) { canvas.style.display = 'none'; return; }
+    if (window.matchMedia('(max-width: 768px) and (pointer: coarse)').matches ||
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      canvas.style.display = 'none';
+      return;
+    }
 
     const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
-
     let W = 0, H = 0;
+
     function resize() {
-      // Run at half resolution — upscaled via CSS — halves GPU fill cost
       W = canvas.width  = Math.ceil(window.innerWidth  / 2);
       H = canvas.height = Math.ceil(window.innerHeight / 2);
-      canvas.style.width  = window.innerWidth  + 'px';
+      canvas.style.width  = window.innerWidth + 'px';
       canvas.style.height = window.innerHeight + 'px';
       canvas.style.imageRendering = 'pixelated';
     }
     resize();
     window.addEventListener('resize', resize, { passive: true });
 
-    // ── Pre-bake noise frames at half-res ──
+    // Pre-bake a small pool of tiled noise frames
     const POOL = 6;
     const noisePool = [];
     for (let f = 0; f < POOL; f++) {
-      const tmp = document.createElement('canvas');
-      tmp.width = tmp.height = 128; // small — tiled
-      const tc  = tmp.getContext('2d');
-      const id  = tc.createImageData(128, 128);
-      const d   = id.data;
+      const tile = document.createElement('canvas');
+      tile.width = tile.height = 128;
+      const tc = tile.getContext('2d');
+      const img = tc.createImageData(128, 128);
+      const d = img.data;
       for (let i = 0; i < d.length; i += 4) {
         const v = Math.random() * 255 | 0;
-        d[i] = d[i+1] = d[i+2] = v;
-        d[i+3] = Math.random() < 0.14 ? (8 + Math.random() * 28 | 0) : 0;
+        d[i] = d[i + 1] = d[i + 2] = v;
+        d[i + 3] = Math.random() < 0.14 ? (8 + Math.random() * 28 | 0) : 0;
       }
-      tc.putImageData(id, 0, 0);
-      noisePool.push(tmp);
+      tc.putImageData(img, 0, 0);
+      noisePool.push(tile);
     }
 
-    // ── Glitch state ──
-    let glitchOn      = false;
-    let glitchFrames  = 0;
-    let glitchY       = 0;
-    let glitchH       = 0;
-    let glitchShift   = 0;
+    let dropoutFrames = 0, dropoutY = 0, dropoutH = 0, dropoutShift = 0;
 
-    function maybeGlitch() {
-      if (!glitchOn && Math.random() < 0.003) { // ~0.3% per frame ≈ once per ~14s at 24fps
-        glitchOn     = true;
-        glitchFrames = 2 + Math.random() * 3 | 0;
-        glitchY      = Math.random() * H | 0;
-        glitchH      = 1 + Math.random() * 4 | 0;
-        glitchShift  = (Math.random() - 0.5) * 12 | 0;
-      }
-    }
-
-    // ── Throttled RAF at ~24fps ──
     const FRAME_MS = 1000 / 24;
-    let lastTime   = 0;
-    let frameIdx   = 0;
-    let rafId      = 0;
-    let paused     = false;
+    let lastTime = 0, frameIdx = 0, rafId = 0, paused = false;
 
     document.addEventListener('visibilitychange', () => {
       paused = document.hidden;
@@ -1102,32 +1006,30 @@
 
     function draw(ts) {
       rafId = requestAnimationFrame(draw);
-      if (paused) return;
-      if (ts - lastTime < FRAME_MS) return;
+      if (paused || ts - lastTime < FRAME_MS) return;
       lastTime = ts;
       frameIdx++;
 
       ctx.clearRect(0, 0, W, H);
-
-      // ── Grain ──
       ctx.globalCompositeOperation = 'screen';
       ctx.globalAlpha = 0.05;
+
       const nf = noisePool[frameIdx % POOL];
       for (let x = 0; x < W; x += 128) {
-        for (let y = 0; y < H; y += 128) {
-          ctx.drawImage(nf, x, y);
-        }
+        for (let y = 0; y < H; y += 128) ctx.drawImage(nf, x, y);
       }
 
-      // ── Glitch flash ──
-      maybeGlitch();
-      if (glitchOn) {
-        ctx.globalCompositeOperation = 'screen';
-        ctx.globalAlpha = 0.35;
+      if (dropoutFrames <= 0 && Math.random() < 0.003) {
+        dropoutFrames = 2 + Math.random() * 3 | 0;
+        dropoutY      = Math.random() * H | 0;
+        dropoutH      = 1 + Math.random() * 4 | 0;
+        dropoutShift  = (Math.random() - 0.5) * 12 | 0;
+      }
+      if (dropoutFrames > 0) {
+        ctx.globalAlpha = 0.32;
         ctx.fillStyle = '#00e8cc';
-        ctx.fillRect(glitchShift, glitchY, W, glitchH);
-        glitchFrames--;
-        if (glitchFrames <= 0) glitchOn = false;
+        ctx.fillRect(dropoutShift, dropoutY, W, dropoutH);
+        dropoutFrames--;
       }
 
       ctx.globalAlpha = 1;
