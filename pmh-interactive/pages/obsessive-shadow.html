@@ -161,13 +161,6 @@
       background-size: cover; background-position: center;
       opacity: 0.3;
     }
-    /* key art backdrop: the section is taller than the art is tall, and
-       `cover` blew its lettering up to fill the gap — show it whole instead
-       and let the top/bottom fade carry the join. */
-    .tos-bg-img.keyart {
-      background-size: contain; background-repeat: no-repeat;
-      background-position: center; opacity: 0.22;
-    }
     .tos-bg-fade {
       position: absolute; inset: 0; z-index: 1;
       background: linear-gradient(to bottom, var(--bg) 0%, rgba(14,14,14,0.05) 16%,
@@ -571,13 +564,13 @@
      FORMER RESIDENTS — still image backdrop
 ══════════════════════════════════════════════ -->
 <section class="tos-section" id="former-residents">
-  <div class="tos-bg-img keyart" style="background-image:url('../images/tos-former-residents-bg.jpg');"></div>
+  <div class="tos-bg-img" style="background-image:url('../images/tos-former-residents-bg.jpg');"></div>
   <div class="tos-bg-fade"></div>
 
   <div class="tos-body">
     <div class="tos-art reveal">
-      <div class="art-frame wide">
-        <img src="../images/tos-former-residents.jpg" alt="The Obsessive Shadow: Former Residents gameplay" />
+      <div class="art-frame natural">
+        <img src="../images/tos-former-residents.jpg" alt="The Obsessive Shadow: Former Residents" />
       </div>
       <div class="art-corner tl"></div><div class="art-corner tr"></div>
       <div class="art-corner bl"></div><div class="art-corner br"></div>
