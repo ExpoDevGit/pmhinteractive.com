@@ -299,13 +299,6 @@
     .tos-actions { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
     .tos-stores { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
-    /* episode link + the engine's own logo alongside it. The label is long
-       enough that at the default button size the logo wrapped to its own
-       line, so this row runs slightly tighter type to keep them together. */
-    .ct-episode { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
-    .ct-episode .tos-btn { font-size: 0.64rem; letter-spacing: 0.09em; padding: 0.72rem 1.05rem; }
-    .ct-fusion-logo { height: 30px; width: auto; opacity: 0.72; transition: opacity 0.2s; flex-shrink: 0; }
-    .ct-episode:hover .ct-fusion-logo { opacity: 1; }
 
     .tos-btn {
       display: inline-flex; align-items: center; gap: 0.55rem;
@@ -612,12 +605,9 @@
       </div>
 
       <div class="tos-actions">
-        <div class="ct-episode">
-          <a href="https://www.youtube.com/live/nRYbHEHoYd4" target="_blank" rel="noopener" class="tos-btn watch">
-            <span class="tri"></span> Watch the Clickteam Reactor Control Room Episode
-          </a>
-          <img src="../images/logos/clickteam-fusion.png" alt="Clickteam Fusion" class="ct-fusion-logo" />
-        </div>
+        <a href="https://www.youtube.com/live/nRYbHEHoYd4" target="_blank" rel="noopener" class="tos-btn watch">
+          <span class="tri"></span> Watch the Clickteam Reactor Control Room Episode
+        </a>
         <div class="tos-stores">
           <a href="https://store.steampowered.com/app/4923040/The_Obsessive_Shadow_Former_Residents/" target="_blank" rel="noopener" class="tos-btn accent">
             <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam Wishlist
