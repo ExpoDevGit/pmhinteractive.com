@@ -51,19 +51,6 @@
     }
 
     /* ── Scanlines ── */
-    #scanlines {
-      position: fixed;
-      inset: 0;
-      z-index: 3;
-      pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        rgba(0,0,0,0.1) 0px,
-        rgba(0,0,0,0.1) 1px,
-        transparent 1px,
-        transparent 3px
-      );
-    }
 
     /* ── Countdown ── */
     #countdown-wrap {
@@ -217,7 +204,6 @@
   </div>
 
   <!-- Scanlines -->
-  <div id="scanlines" aria-hidden="true"></div>
 
   <!-- Countdown -->
   <div id="countdown-wrap" role="timer" aria-live="off">

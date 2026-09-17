@@ -33,17 +33,11 @@
     }
 
     /* ════════════════════════════════════════════
-       VHS GRADE — static CSS layers, one small canvas
+       VHS GRADE — grain, rolling bar and vignette
     ════════════════════════════════════════════ */
     #vhs-canvas {
       position: fixed; inset: 0; width: 100%; height: 100%;
       z-index: 9000; pointer-events: none; opacity: 0.5;
-    }
-    #vhs-scanlines {
-      position: fixed; inset: 0; z-index: 9001; pointer-events: none;
-      background-image: repeating-linear-gradient(
-        0deg, rgba(0,0,0,0.09) 0px, rgba(0,0,0,0.09) 1px, transparent 1px, transparent 3px);
-      transform: translateZ(0);
     }
     #vhs-scanbar {
       position: fixed; left: 0; right: 0; height: 120px;
@@ -226,10 +220,6 @@
         #0a0a0d;
       border: 1px solid var(--accent-line); overflow: hidden;
     }
-    .collab-lockup::after {
-      content: ''; position: absolute; inset: 0; pointer-events: none;
-      background-image: repeating-linear-gradient(0deg, rgba(0,0,0,0.22) 0px, rgba(0,0,0,0.22) 1px, transparent 1px, transparent 4px);
-    }
     .cl-name {
       font-family: var(--font-display); color: #fff; line-height: 0.95;
       font-size: clamp(1.4rem, 3.6vw, 2.5rem); letter-spacing: 0.04em;
@@ -363,7 +353,6 @@
 
 <!-- VHS grade layers -->
 <canvas id="vhs-canvas" aria-hidden="true"></canvas>
-<div id="vhs-scanlines" aria-hidden="true"></div>
 <div id="vhs-scanbar" aria-hidden="true"></div>
 <div id="vhs-vignette" aria-hidden="true"></div>
 
@@ -449,8 +438,8 @@
       <div class="tos-sub">Survival Horror // First-Person // VR + Flat</div>
       <span class="tos-status live">Available Now</span>
 
-      <p class="tos-desc"><strong>The Obsessive Shadow</strong> is a survival horror game about a stalker you can't quite identify. With nothing but your eyes and a flashlight at your disposal, it's up to you to survive whatever horrific person or thing is out there watching you.</p>
-      <p class="tos-desc">You take on the role of Liam — a 9-year-old boy left alone in his home after a sudden power outage plunges the house into suffocating darkness. Your mother's voice on the phone is your only guide. But as her instructions grow more confusing and the unease deepens, even her words begin to feel fragile.</p>
+      <p class="tos-desc">The Obsessive Shadow is a short survival horror game set in 1986 American Suburbs. You play as 9 year old Liam Robertson. While watching tv, the power mysteriously goes out. You quickly find out that your mother is missing when a strange phone suddenly call becomes your only hope at surviving the night. While only armed with a flashlight and a familiar voice on the phone, you must rely on your eyes, ears, and pure instinct to keep whatever is hunting you away.</p>
+      <p class="tos-desc">Every hour that creeps by, the rules for survival change. You must adapt and overcome whatever the night throws your way. <strong>IT. IS. HERE.</strong> With 3 different endings and multiple achievements to unlock, you must push through and face the darkness. Will the increasingly odd instructions keep you alive? Or will this monster catch you when you least expect it?</p>
 
       <div class="tos-tags">
         <span class="tos-tag">Psychological Horror</span><span class="tos-tag">Atmospheric</span>
@@ -497,11 +486,11 @@
     <div class="tos-copy reveal">
       <div class="tos-eyebrow">Chapter 02 // 2026</div>
       <h2 class="tos-heading">The Obsessive Shadow<br /><span>Chapter 2</span></h2>
-      <div class="tos-sub">Survival Horror // DLC // Demo Available Now</div>
-      <span class="tos-status dev">Demo Available Now</span>
+      <div class="tos-sub">Survival Horror // DLC // In Development</div>
+      <span class="tos-status dev">In Development</span>
 
-      <p class="tos-desc">Set <strong>20 years after</strong> the events of Chapter 1. After hearing ghost stories surrounding a cul-de-sac abandoned since the '80s, 16-year-old Justin takes on a dare from his friend — spend the night in the ruins of what was once a thriving community.</p>
-      <p class="tos-desc">Uncover the truth of what really happened all those years ago. Survive until morning.<br /><br /><strong>Note:</strong> requires the base game on Steam. Coming to PS5, PSVR2, Meta Quest, Steam, and Xbox in 2026.</p>
+      <p class="tos-desc">Two decades after the chilling horrors of the past, the year is 2006, and the abandoned streets of Old Diamond Drive lie shrouded in eerie mystery. Once a vibrant neighborhood, it&rsquo;s now the heart of chilling urban legends whispered across town. 16 year old Justin, having lost a bet to his friend Matthew, accepts a daring challenge: spend a single night among the remains of this shell of a once thriving community.</p>
+      <p class="tos-desc">Armed with only a camcorder and a flashlight, he steps into the darkness, unaware of the nightmare awaiting him. As the shadows close in, Justin discovers he&rsquo;s trapped on Old Diamond Drive... and he&rsquo;s not alone. To survive, he must confront the horrors face to face and challenge the unknown figure lurking in the obscurity of the dark.</p>
 
       <div class="tos-tags">
         <span class="tos-tag">Psychological Horror</span><span class="tos-tag">Atmospheric</span>
@@ -562,9 +551,9 @@
       <div class="tos-sub">2D Horror Narrative // Top-Down // Pixel Art</div>
       <span class="tos-status dev">In Development</span>
 
-      <p class="tos-desc">Knock knock. Who's there? <strong>The Obsessive Shadow is lurking.</strong></p>
-      <p class="tos-desc">Uncover the story of what happened to the former residents of Old Diamond Drive — a once-thriving community later left abandoned and in ruin. Each night puts you behind the eyes of a different resident being stalked and watched, and each of their stories threads back into the same pivotal week the neighborhood never came back from.</p>
-      <p class="tos-desc">Face what's in the shadows and stay alert. Watch the windows. Watch the doors. <strong>You are being watched at every turn.</strong></p>
+      <p class="tos-desc">Knock Knock? Who&rsquo;s There? The Obsessive Shadow is lurking... In this 2D Horror Narrative, Uncover the story of what happened to the former residents of Old Diamond Drive. A once thriving community later finds itself left in ruin. Abandoned, neglected, and mostly forgotten... But how did this happen? Live the stories of the people living there and see for yourself.</p>
+      <p class="tos-desc">Each night, you&rsquo;ll take on the role of someone being stalked, hunted, and watched. Watch your windows... Listen for knocking... and KEEP A FLASHLIGHT HANDY... The danger that lurks in the shadows can do more than you would think... <strong>IT. IS. HERE.</strong></p>
+      <p class="tos-desc">Experience a collection of interconnected stories spanning the week that changed everything, where every resident has their own encounter with the unseen force haunting the neighborhood. Look through darkened homes, uncover hidden clues, and piece together the truth behind the disappearances, tragedies, and strange events that transformed Old Diamond Drive into a ghost of its former self. What begins as an isolated incident soon reveals a far more disturbing reality one that has been watching from the darkness all along.</p>
 
       <div class="tos-tags">
         <span class="tos-tag">2D / Top-Down</span><span class="tos-tag">Pixel Graphics</span>
@@ -693,8 +682,7 @@
       <h2 class="tos-heading">The Obsessive Shadow<br /><span>&times; Monsters and Mazes</span></h2>
       <div class="tos-sub">Official Crossover // Multiplayer VR Horror</div>
 
-      <p class="tos-desc">The Shadow is loose in someone else's game. <strong>Monsters and Mazes</strong> is a multiplayer VR horror game on Meta Quest where one player takes the role of the monster and everyone else has to work the maze and get out before they're caught.</p>
-      <p class="tos-desc">Our crossover brings <strong>a free Obsessive Shadow monster skin</strong> into it — so the thing that spent Chapter 1 circling Liam's house can now come for you and your friends inside the <strong>Toy Factory</strong>. Same rules as always: it hates the light, and it is patient.</p>
+      <p class="tos-desc">An all new monster has made it&rsquo;s way into the mazes. Play as The Obsessive Shadow in this new spooky crossover! Knock knock&hellip; who&rsquo;s there? It seems to be a stalker you can&rsquo;t exactly identify. <strong>IT. IS. HERE.</strong></p>
 
       <div class="tos-tags">
         <span class="tos-tag">Crossover</span><span class="tos-tag">Multiplayer</span>
@@ -707,17 +695,29 @@
           <a href="https://www.meta.com/en-gb/experiences/monsters-and-mazes-toy-factory/9972710149415118/" target="_blank" rel="noopener" class="tos-btn accent">
             <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Play on Meta Quest
           </a>
+          <a href="https://discord.gg/J5vukhB4JX" target="_blank" rel="noopener" class="tos-btn">
+            <img src="../images/logos/discord.svg" alt="" class="brand-mark" /> Join the Discord
+          </a>
         </div>
       </div>
     </div>
 
     <div class="tos-art reveal d1">
-      <div class="collab-lockup">
-        <div class="cl-name">The Obsessive Shadow</div>
-        <div class="cl-x">&times;</div>
-        <div class="cl-name">Monsters and Mazes</div>
-        <div class="cl-tag">Toy Factory // Meta Quest</div>
+      <div class="art-frame wide">
+        <img
+          src="../images/tos-monsters-mazes.jpg"
+          alt="The Obsessive Shadow x Monsters and Mazes crossover key art"
+          onerror="this.closest('.art-frame').replaceWith(document.getElementById('mm-lockup').content.cloneNode(true));"
+        />
       </div>
+      <template id="mm-lockup">
+        <div class="collab-lockup">
+          <div class="cl-name">The Obsessive Shadow</div>
+          <div class="cl-x">&times;</div>
+          <div class="cl-name">Monsters and Mazes</div>
+          <div class="cl-tag">Toy Factory // Meta Quest</div>
+        </div>
+      </template>
       <div class="art-corner tl"></div><div class="art-corner tr"></div>
       <div class="art-corner bl"></div><div class="art-corner br"></div>
     </div>
