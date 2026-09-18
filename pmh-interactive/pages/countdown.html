@@ -50,8 +50,6 @@
       height: auto;
     }
 
-    /* ── Scanlines ── */
-
     /* ── Countdown ── */
     #countdown-wrap {
       position: fixed;
@@ -81,16 +79,6 @@
       letter-spacing: 0.06em;
       line-height: 1;
       text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 15px rgba(255,255,255,0.3);
-      animation: crtFlicker 9s ease-in-out infinite;
-    }
-
-    @keyframes crtFlicker {
-      0%,100% { opacity: 1; }
-      91%     { opacity: 1; }
-      92%     { opacity: 0.3; }
-      93%     { opacity: 1; }
-      96%     { opacity: 0.6; }
-      97%     { opacity: 1; }
     }
 
     /* ── Video overlay ── */
@@ -147,7 +135,6 @@
       letter-spacing: 0.06em;
       line-height: 1.15;
       text-shadow: 0 0 5px rgba(255,255,255,0.7), 0 0 18px rgba(255,255,255,0.25);
-      animation: crtFlicker 9s ease-in-out infinite;
     }
     #end-card-outnow {
       font-family: var(--vcr);
@@ -202,8 +189,6 @@
   <div id="tv-layer" aria-hidden="true">
     <img id="tv-on" src="../images/countdown-tv-on.png" alt="" onerror="this.style.display='none';" />
   </div>
-
-  <!-- Scanlines -->
 
   <!-- Countdown -->
   <div id="countdown-wrap" role="timer" aria-live="off">
