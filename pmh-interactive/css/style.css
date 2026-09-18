@@ -426,9 +426,11 @@ section { padding: 7.5rem var(--gutter); }
    ════════════════════════════════════════════════════════════ */
 #partners { background: var(--bg); }
 .partners-grid {
-  /* 21 partners: 7 across at full width and 3 across on phones, so both
-     land in whole rows with no half-empty tail */
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  /* Fixed column counts, not auto-fill: 21 tiles divide by 7 and by 3, so
+     every row fills. auto-fill picked its own count from the viewport and
+     landed on 6 at some widths, which left three dead cells in the last row.
+     If the partner count changes, it has to stay divisible by 7 and 3. */
+  display: grid; grid-template-columns: repeat(7, 1fr);
   gap: 1px; background: var(--border-dim); border: 1px solid var(--border-dim);
 }
 .partner {
@@ -455,10 +457,6 @@ section { padding: 7.5rem var(--gutter); }
 }
 .partner:hover .partner-name { color: #fff; }
 
-/* a mark that needs its name set beside it */
-.partner-lockup { flex-direction: column; gap: 0.55rem; }
-.partner-lockup img { max-height: 52%; }
-.partner-lockup .partner-name { font-size: 1.05rem; color: var(--text-mid); }
 
 /* the trailing tile, so the last row lands flush */
 .partner-more { cursor: default; }
@@ -467,6 +465,10 @@ section { padding: 7.5rem var(--gutter); }
   margin-top: 1.5rem; text-align: center;
   font-family: var(--font-ui); font-size: 0.72rem; font-weight: 500;
   letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-dim);
+}
+
+@media (max-width: 900px) {
+  .partners-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 @media (max-width: 640px) {

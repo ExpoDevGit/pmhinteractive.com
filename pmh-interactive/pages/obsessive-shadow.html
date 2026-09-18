@@ -299,6 +299,13 @@
     .tos-actions { display: flex; flex-direction: column; gap: 0.8rem; width: 100%; }
     .tos-stores { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
+    /* soundtrack links, folded into Chapter 1 */
+    .tos-ost { margin-top: 1.4rem; padding-top: 1.3rem; border-top: 1px solid var(--accent-line); }
+    .tos-ost-label {
+      display: block; margin-bottom: 0.85rem;
+      font-family: var(--font-vcr); font-size: 0.66rem;
+      letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim);
+    }
 
     .tos-btn {
       display: inline-flex; align-items: center; gap: 0.55rem;
@@ -492,6 +499,21 @@
           <span class="tos-btn disabled">
             <img src="../images/logos/xbox.svg" alt="" class="brand-mark" /> Xbox — Coming Soon
           </span>
+        </div>
+
+        <div class="tos-ost">
+          <span class="tos-ost-label">Original Soundtrack &mdash; streaming on all major platforms</span>
+          <div class="tos-stores">
+            <a href="https://open.spotify.com/album/56Kx5MP4Nsv2cWMUGyr3tg" target="_blank" rel="noopener" class="tos-btn">
+              <img src="../images/logos/spotify.svg" alt="" class="brand-mark" /> Spotify
+            </a>
+            <a href="https://music.apple.com/us/album/the-obsessive-shadow-official-game-soundtrack/1888055640" target="_blank" rel="noopener" class="tos-btn">
+              <img src="../images/logos/applemusic.svg" alt="" class="brand-mark" /> Apple Music
+            </a>
+            <a href="https://music.youtube.com/search?q=The+Obsessive+Shadow+Official+Game+Soundtrack" target="_blank" rel="noopener" class="tos-btn">
+              <img src="../images/logos/youtubemusic.svg" alt="" class="brand-mark" /> YouTube Music
+            </a>
+          </div>
         </div>
       </div>
     </div>
@@ -856,52 +878,6 @@
   </div>
 </section>
 
-<hr class="tos-rule" />
-
-<!-- ══════════════════════════════════════════════
-     SOUNDTRACK
-══════════════════════════════════════════════ -->
-<section class="tos-section teal" id="soundtrack">
-  <div class="tos-body">
-    <div class="tos-art reveal">
-      <div class="art-frame">
-        <img src="../images/tos-soundtrack.jpg" alt="The Obsessive Shadow official soundtrack cover art" />
-      </div>
-      <div class="art-corner tl"></div><div class="art-corner tr"></div>
-      <div class="art-corner bl"></div><div class="art-corner br"></div>
-    </div>
-
-    <div class="tos-copy reveal d1">
-      <div class="tos-eyebrow">Original Soundtrack // Out Now</div>
-      <h2 class="tos-heading">The Obsessive Shadow<br /><span>Soundtrack</span></h2>
-      <div class="tos-sub">Streaming on Every Major Platform</div>
-      <span class="tos-status live">Out Now</span>
-
-      <p class="tos-desc">The official soundtrack to <strong>The Obsessive Shadow</strong> — the dread, the static and the quiet stretches between the knocks, pulled out of the game and put on repeat.</p>
-      <p class="tos-desc"><strong>Available on all major streaming platforms</strong>, including Spotify, Apple Music, YouTube Music, Amazon Music, Deezer, and Tidal.</p>
-
-      <div class="tos-tags">
-        <span class="tos-tag">Original Score</span><span class="tos-tag">Horror Ambient</span>
-        <span class="tos-tag">Streaming Everywhere</span>
-      </div>
-
-      <div class="tos-actions">
-        <div class="tos-stores">
-          <a href="https://open.spotify.com/album/6KUqpoexIesyzQSedoi9Ok" target="_blank" rel="noopener" class="tos-btn accent">
-            <img src="../images/logos/spotify.svg" alt="" class="brand-mark" /> Spotify
-          </a>
-          <a href="https://music.apple.com/us/album/the-obsessive-shadow-official-videogame-soundtrack/1805462783" target="_blank" rel="noopener" class="tos-btn">
-            <img src="../images/logos/applemusic.svg" alt="" class="brand-mark" /> Apple Music
-          </a>
-          <a href="https://music.youtube.com/search?q=The+Obsessive+Shadow+Official+Videogame+Soundtrack" target="_blank" rel="noopener" class="tos-btn">
-            <img src="../images/logos/youtubemusic.svg" alt="" class="brand-mark" /> YouTube Music
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ══════════════════════════════════════════════
      MERCH
 ══════════════════════════════════════════════ -->
@@ -998,7 +974,6 @@
           <a href="#monsters-and-mazes">Monsters and Mazes</a>
           <a href="#arcade">VR Arcades</a>
           <a href="#film">Short Film</a>
-          <a href="#soundtrack">Soundtrack</a>
           <a href="#merch">Merch</a>
         </div>
         <div class="footer-col">
