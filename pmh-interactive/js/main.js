@@ -66,10 +66,11 @@ if (!reducedMotion && 'IntersectionObserver' in window) {
 
 // ── MARK CURRENT NAV LINK ──
 (() => {
-  const here = location.pathname.split('/').pop() || 'index.html';
+  const page = (path) => path.replace(/index\.html$/, '');
+  const here = page(location.pathname);
   document.querySelectorAll('.nav-links a').forEach(a => {
-    const href = a.getAttribute('href') || '';
-    if (href.includes('#') && !href.includes('.html')) return;
-    if (href.split('/').pop().split('#')[0] === here) a.classList.add('current');
+    const url = new URL(a.href, location.href);
+    if (url.hash || url.origin !== location.origin) return;
+    if (page(url.pathname) === here) a.classList.add('current');
   });
 })();

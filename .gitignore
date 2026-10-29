@@ -1,0 +1,3 @@
+# Built by tools/build-news.js during deploy (and by `npm run news` locally)
+/pmh-interactive/news/index.json
+/pmh-interactive/news/*/index.html
