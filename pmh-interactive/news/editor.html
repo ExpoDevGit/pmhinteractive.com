@@ -32,7 +32,18 @@
       background: var(--surface); color: var(--text-mid);
       border: 1px solid var(--border-dim); padding: 0 0.8rem; max-width: 260px;
     }
-    #account.connected { border-color: var(--border); color: var(--teal); }
+    #sign-out span { color: var(--teal); }
+
+    /* ── Sign-in gate: nothing of the editor shows until GitHub vouches for you ── */
+    body.locked .ed, body.locked .ed-bar-actions { display: none; }
+    body:not(.locked) .gate { display: none; }
+    .gate { min-height: calc(100vh - 64px); display: flex; align-items: center; justify-content: center; padding: 3rem var(--gutter); }
+    .gate-box { max-width: 470px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 1.3rem; }
+    .gate-box .label { justify-content: center; margin: 0; }
+    .gate-box .btn svg { width: 18px; height: 18px; fill: currentColor; }
+    .gate-box .btn[disabled] { opacity: 0.6; pointer-events: none; }
+    .gate-note { font-family: var(--font-ui); font-size: 0.78rem; color: var(--text-dim); line-height: 1.6; }
+    .gate-error { font-family: var(--font-ui); font-size: 0.82rem; color: #ffb3b3; border: 1px solid rgba(255,107,107,0.45); background: rgba(255,60,60,0.06); padding: 0.75rem 1rem; }
 
     /* ── Layout ── */
     .ed { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
@@ -165,7 +176,7 @@
     }
   </style>
 </head>
-<body>
+<body class="locked">
 
 <header class="ed-bar">
   <a href="../index.html" class="nav-logo">
@@ -179,10 +190,23 @@
       <option value="">Edit a published post…</option>
     </select>
     <button type="button" id="delete-post" class="store-btn" hidden>Delete</button>
-    <button type="button" id="account" class="store-btn">Connect GitHub</button>
+    <button type="button" id="sign-out" class="store-btn" title="Sign out of the editor">Sign Out</button>
     <button type="button" id="publish" class="btn btn-primary">Publish</button>
   </div>
 </header>
+
+<section class="gate" aria-labelledby="gate-title">
+  <div class="gate-box">
+    <div class="label">News Editor</div>
+    <h1 class="section-title" id="gate-title">Sign <em>In</em></h1>
+    <p>Sign in with the GitHub account that runs this website. GitHub asks for your password and two-factor code, and the editor only opens for accounts that can post to the site.</p>
+    <button type="button" id="sign-in" class="btn btn-primary">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg> Sign in with GitHub
+    </button>
+    <p class="gate-error" id="gate-error" role="alert" hidden></p>
+    <p class="gate-note">You stay signed in until you close this tab or sign out, for 8 hours at most.</p>
+  </div>
+</section>
 
 <main class="ed">
   <div class="ed-write">
@@ -362,44 +386,6 @@
   </form>
 </dialog>
 
-<!-- ── Connect ── -->
-<dialog id="dlg-connect">
-  <form method="dialog">
-    <h2>Connect to GitHub</h2>
-    <div id="connect-off">
-      <p>Connecting lets <strong>Publish</strong> put the post and its images straight onto the site. Only a GitHub account with write access to the website's repository can do this. The key is saved in this browser and nowhere else.</p>
-      <ol style="margin-top:1rem;">
-        <li><a id="token-link" target="_blank" rel="noopener">Create a token on GitHub</a>.</li>
-        <li>Under <strong>Repository access</strong>, pick <strong>Only select repositories</strong> → <strong>pmhinteractive.com</strong>.</li>
-        <li>Under <strong>Permissions → Repository permissions</strong>, set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
-        <li>Click <strong>Generate token</strong> and paste it below.</li>
-      </ol>
-      <div class="ed-field" style="margin-top:1rem;"><input type="text" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false" /></div>
-    </div>
-    <div id="connect-on" hidden>
-      <p>Connected as <strong id="connect-user"></strong>. Publishing goes straight to the site.</p>
-    </div>
-    <div class="dlg-actions">
-      <button type="button" data-close class="store-btn">Close</button>
-      <button type="button" class="store-btn" id="disconnect" hidden>Disconnect</button>
-      <button value="ok" class="btn btn-primary" id="connect-go">Connect</button>
-    </div>
-  </form>
-</dialog>
-
-<!-- ── Publish without connecting ── -->
-<dialog id="dlg-manual">
-  <form method="dialog">
-    <h2>Publish Through GitHub</h2>
-    <p>You're not connected, so this takes a couple of steps on GitHub. Connect GitHub and you can skip all this next time.</p>
-    <ol>
-      <li id="manual-media" hidden>Upload these files to the <a id="manual-upload" target="_blank" rel="noopener">news media folder</a> (download them first if you pasted them in): <span id="manual-files"></span></li>
-      <li><a id="manual-post" target="_blank" rel="noopener">Open the post on GitHub</a>. <span id="manual-paste">The post has also been copied, so paste it over everything in the file.</span> Then press <strong>Commit changes</strong>.</li>
-    </ol>
-    <div class="dlg-actions"><button value="ok" class="btn btn-primary">Done</button></div>
-  </form>
-</dialog>
-
 <!-- ── Published ── -->
 <dialog id="dlg-done">
   <form method="dialog">
@@ -413,14 +399,15 @@
 <script type="module">
 import { Marked } from '../js/vendor/marked.esm.js';
 import {
-  GAMES, PLATFORMS, POST_TYPES, REPO, SITE_URL,
+  GAMES, PLATFORMS, POST_TYPES, REPO, SITE_URL, EDITOR_AUTH,
   createMarkdown, parsePost, serializePost, validatePost,
   platformIcons, slugify, formatDate, sitePath, fromRoot, escapeHtml,
 } from '../js/news.js';
 
 const $ = (id) => document.getElementById(id);
 const DRAFT_KEY = 'pmh-news-draft';
-const TOKEN_KEY = 'pmh-news-token';
+const SESSION_KEY = 'pmh-news-session';  // sessionStorage: gone when the tab closes
+const STATE_KEY = 'pmh-news-signin';
 const API = `https://api.github.com/repos/${REPO.owner}/${REPO.name}`;
 const GITHUB = `https://github.com/${REPO.owner}/${REPO.name}`;
 
@@ -433,8 +420,8 @@ const uploads = new Map();   // site path → File, waiting to go up with the ne
 const previews = new Map();  // site path → blob: URL, so the preview can show them first
 const render = createMarkdown(Marked, { root: '../', media: previews });
 
-let token = store.get(TOKEN_KEY);
-let login = null;            // GitHub username once the token checks out
+let token = null;            // GitHub sign-in token, only ever in memory and sessionStorage
+let login = null;            // GitHub username once the sign-in checks out
 let editing = null;          // slug of the published post being edited, if any
 let lastSaved = '';          // serialized post as last loaded or published
 
@@ -791,6 +778,7 @@ async function gh(path, { method = 'GET', body: payload, raw = false } = {}) {
     },
     body: payload ? JSON.stringify(payload) : undefined,
   });
+  if (res.status === 401 && token) lock('Your sign-in ran out. Sign in again and carry on, your post is still here.');
   if (!res.ok) {
     const err = new Error((await res.json().catch(() => ({}))).message || res.statusText);
     err.status = res.status;
@@ -837,65 +825,121 @@ async function commit(message, changes) {
   }
 }
 
-async function connect(candidate) {
+// ════════ Sign in ════════
+// GitHub does the password and two-factor check in a popup, then hands back a
+// one-time code. The worker in tools/news-auth-worker.js swaps that for a token,
+// since that step needs a secret the website can't hold. The editor only opens
+// if the account behind the token can write to the website's repository.
+
+const sessionStore = {
+  get() { try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch { return null; } },
+  set(v) { try { v ? sessionStorage.setItem(SESSION_KEY, JSON.stringify(v)) : sessionStorage.removeItem(SESSION_KEY); } catch {} },
+};
+
+// The popup reports back over this, since GitHub's pages can cut the popup off from window.opener.
+const signInChannel = 'BroadcastChannel' in window ? new BroadcastChannel('pmh-news-signin') : null;
+let expectedState = null;
+
+function gate(message, busy = false) {
+  $('gate-error').hidden = !message || busy;
+  $('gate-error').textContent = busy ? '' : message || '';
+  $('sign-in').disabled = busy;
+  $('sign-in').lastChild.textContent = busy ? ` ${message}` : ' Sign in with GitHub';
+}
+
+function signIn() {
+  if (!EDITOR_AUTH.clientId || !EDITOR_AUTH.tokenUrl) {
+    return gate('Sign-in isn\'t set up yet. Follow "Editor sign-in" in SETUP.md, then fill in EDITOR_AUTH in js/news.js.');
+  }
+  const popup = signInChannel && window.open('', 'pmh-news-signin', 'popup,width=520,height=720');
+  const state = `${crypto.randomUUID()}.${popup ? 'popup' : 'page'}`;
+  const url = 'https://github.com/login/oauth/authorize?' + new URLSearchParams({
+    client_id: EDITOR_AUTH.clientId,
+    redirect_uri: location.origin + location.pathname,
+    state,
+  });
+  expectedState = state;
+  try { sessionStorage.setItem(STATE_KEY, state); } catch {}
+  gate('Waiting for GitHub…', true);
+  if (popup) {
+    popup.location.href = url;
+    const watch = setInterval(() => {
+      if (!popup.closed) return;
+      clearInterval(watch);
+      if (expectedState === state && document.body.classList.contains('locked')) gate('');
+    }, 600);
+  } else {
+    location.assign(url);
+  }
+}
+
+signInChannel?.addEventListener('message', ({ data }) => {
+  if (!data || data.state !== expectedState) return;
+  expectedState = null;
+  if (data.code) finishSignIn(data.code);
+  else gate(data.error || 'Sign-in was cancelled.');
+});
+
+async function finishSignIn(code) {
+  gate('Checking with GitHub…', true);
+  try {
+    const res = await fetch(EDITOR_AUTH.tokenUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.access_token) throw new Error(data.error || 'GitHub turned the sign-in down. Try again.');
+    await unlock(data.access_token, Date.now() + (data.expires_in || 28800) * 1000);
+  } catch (err) {
+    gate(err.message === 'Failed to fetch' ? "Couldn't reach the sign-in service. Check the tokenUrl in js/news.js." : err.message);
+  }
+}
+
+async function unlock(candidate, expires) {
   token = candidate;
   try {
     const repo = await gh('');
-    if (!repo.permissions?.push) throw new Error("That account can't write to the website's repository.");
-    const user = await gh('https://api.github.com/user').catch(() => ({ login: 'GitHub' }));
-    store.set(TOKEN_KEY, token);
-    login = user.login;
-    showAccount();
-    return true;
+    if (!repo.permissions?.push) throw new Error(`That GitHub account can't post to this website.`);
+    login = (await gh('https://api.github.com/user')).login;
   } catch (err) {
-    token = store.get(TOKEN_KEY);
-    status({
-      401: "GitHub didn't accept that token. Check you copied all of it, and that it hasn't expired.",
-      404: "That token can't see the website's repository. Make sure pmhinteractive.com is picked under Repository access.",
-    }[err.status] || err.message, true);
-    return false;
+    token = login = null;
+    sessionStore.set(null);
+    return gate({
+      401: 'That sign-in has ended. Sign in again.',
+      404: "That GitHub account can't see the website's repository, or the sign-in app isn't installed on it. See SETUP.md.",
+    }[err.status] || err.message);
   }
+  sessionStore.set({ token, expires });
+  clearTimeout(unlock.timer);
+  unlock.timer = setTimeout(() => lock('Your sign-in ran out. Sign in again and carry on, your post is still here.'), expires - Date.now());
+  gate('');
+  document.body.classList.remove('locked');
+  showAccount();
+  openEditor();
+}
+
+// Hides the editor again. Whatever is in it stays put for when you sign back in.
+function lock(message = '') {
+  token = login = null;
+  sessionStore.set(null);
+  clearTimeout(unlock.timer);
+  document.querySelectorAll('dialog[open]').forEach(d => d.close());
+  document.body.classList.add('locked');
+  gate(message);
 }
 
 function showAccount() {
-  $('account').textContent = login ? `✓ ${login}` : 'Connect GitHub';
-  $('account').classList.toggle('connected', !!login);
-  $('connect-user').textContent = login || '';
-  $('connect-on').hidden = !login;
-  $('connect-off').hidden = !!login;
-  $('disconnect').hidden = !login;
-  $('connect-go').hidden = !!login;
-  $('delete-post').hidden = !(login && editing);
+  $('sign-out').innerHTML = login ? `Sign Out <span>${escapeHtml(login)}</span>` : 'Sign Out';
+  $('delete-post').hidden = !editing;
 }
 
-$('token-link').href = 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({
-  name: 'PMH News Editor',
-  description: 'Publishes news posts from pmhinteractive.com/news/editor.html',
-  target_name: REPO.owner,
-  contents: 'write',
-});
-
-$('account').addEventListener('click', () => {
-  $('token').value = '';
-  const dlg = $('dlg-connect');
-  dlg.returnValue = '';
-  dlg.showModal();
-});
-$('disconnect').addEventListener('click', () => {
-  $('dlg-connect').close();
-  token = login = null;
-  store.set(TOKEN_KEY, null);
-  showAccount();
-  loadPostList();
-  status('Disconnected. The token is gone from this browser. You can delete it on GitHub too.');
-});
-$('dlg-connect').addEventListener('close', async () => {
-  if ($('dlg-connect').returnValue === 'ok' && $('token').value.trim()) {
-    if (await connect($('token').value.trim())) {
-      status('Connected. Publish now goes straight to the site.');
-      loadPostList();
-    }
-  }
+$('sign-in').addEventListener('click', signIn);
+$('sign-out').addEventListener('click', () => {
+  if (referencedUploads(readForm()).length && !confirm('Images you added haven\'t been published yet and will be lost. Sign out anyway?')) return;
+  uploads.clear();
+  lock();
+  status('');
 });
 
 // ════════ Publish ════════
@@ -911,8 +955,6 @@ $('publish').addEventListener('click', async () => {
   const path = `${REPO.posts}/${slug}.md`;
   const text = serializePost(post);
   const files = referencedUploads(post);
-
-  if (!token) return publishManually(path, text, files);
 
   $('publish').disabled = true;
   try {
@@ -937,35 +979,13 @@ $('publish').addEventListener('click', async () => {
   }
 });
 
-async function publishManually(path, text, files) {
-  const [dir, name] = [path.slice(0, path.lastIndexOf('/')), path.slice(path.lastIndexOf('/') + 1)];
-  const copied = await navigator.clipboard?.writeText(text).then(() => true, () => false);
-
-  const url = editing
-    ? `${GITHUB}/edit/${REPO.branch}/${path}`
-    : `${GITHUB}/new/${REPO.branch}/${dir}?` + new URLSearchParams({ filename: name, ...(text.length < 6000 ? { value: text } : {}) });
-  $('manual-post').href = url;
-  $('manual-post').textContent = editing ? 'Open the post on GitHub' : 'Create the post on GitHub';
-  $('manual-paste').textContent = editing
-    ? (copied ? 'The updated post is copied. Select everything in the file, paste over it,' : 'Copy the post from the editor and paste it over everything in the file,')
-    : text.length < 6000 ? 'Everything is filled in for you.' : (copied ? 'The post is copied. Paste it into the empty file,' : 'Copy the post from the editor and paste it into the empty file,');
-
-  $('manual-media').hidden = !files.length;
-  $('manual-upload').href = `${GITHUB}/upload/${REPO.branch}/${REPO.media}`;
-  $('manual-files').innerHTML = files.map(([p, file]) =>
-    `<a href="${previews.get(p)}" download="${escapeHtml(p.split('/').pop())}">${escapeHtml(p.split('/').pop())}</a>`).join(', ');
-
-  $('dlg-manual').showModal();
-}
-
 // ════════ Open / new / delete ════════
 
 async function loadPostList() {
   let slugs = [];
   try {
-    slugs = token
-      ? (await gh(`/contents/${REPO.posts}?ref=${REPO.branch}`)).filter(x => x.name.endsWith('.md')).map(x => x.name.slice(0, -3))
-      : (await (await fetch('index.json', { cache: 'no-store' })).json()).map(p => p.slug);
+    slugs = (await gh(`/contents/${REPO.posts}?ref=${REPO.branch}`))
+      .filter(x => x.name.endsWith('.md')).map(x => x.name.slice(0, -3));
   } catch { /* nothing published yet, or offline */ }
   slugs.sort().reverse();
   $('open-post').innerHTML = '<option value="">Edit a published post…</option>' +
@@ -980,9 +1000,7 @@ $('open-post').addEventListener('change', async (e) => {
     return;
   }
   try {
-    const text = token
-      ? await gh(`/contents/${REPO.posts}/${slug}.md?ref=${REPO.branch}`, { raw: true })
-      : await (await fetch(`posts/${slug}.md`, { cache: 'no-store' })).text();
+    const text = await gh(`/contents/${REPO.posts}/${slug}.md?ref=${REPO.branch}`, { raw: true });
     editing = slug;
     writeForm(parsePost(text));
     lastSaved = serializePost(readForm());
@@ -1037,16 +1055,39 @@ function status(message, isError = false) {
 
 // ════════ Start ════════
 
-const draft = (() => { try { return JSON.parse(store.get(DRAFT_KEY)); } catch { return null; } })();
-editing = draft?.editing || null;
-writeForm(draft?.post ? { ...blank(), ...draft.post } : blank());
-lastSaved = draft?.post ? '' : serializePost(readForm());
-
-if (token) {
-  connect(token).then(ok => { if (!ok) { token = null; showAccount(); } loadPostList(); });
-} else {
+let opened = false;
+function openEditor() {
+  if (opened) return loadPostList();
+  opened = true;
+  const draft = (() => { try { return JSON.parse(store.get(DRAFT_KEY)); } catch { return null; } })();
+  editing = draft?.editing || null;
+  writeForm(draft?.post ? { ...blank(), ...draft.post } : blank());
+  lastSaved = draft?.post ? '' : serializePost(readForm());
   showAccount();
   loadPostList();
+}
+
+const params = new URLSearchParams(location.search);
+const returnedState = params.get('state');
+
+if (returnedState?.endsWith('.popup')) {
+  // This is the sign-in popup coming back from GitHub: pass the result on and close.
+  signInChannel?.postMessage({ state: returnedState, code: params.get('code'), error: params.get('error_description') });
+  document.querySelector('.gate-box').innerHTML = '<div class="label">News Editor</div><p>Signed in. You can close this window.</p>';
+  window.close();
+} else if (returnedState) {
+  // Came back from GitHub in this same tab (the popup was blocked).
+  history.replaceState(null, '', location.pathname);
+  let expected = null;
+  try { expected = sessionStorage.getItem(STATE_KEY); sessionStorage.removeItem(STATE_KEY); } catch {}
+  if (returnedState === expected && params.get('code')) finishSignIn(params.get('code'));
+  else gate(params.get('error_description') || 'Sign-in was cancelled.');
+} else {
+  const saved = sessionStore.get();
+  if (saved?.token && saved.expires > Date.now() + 60000) {
+    gate('Checking with GitHub…', true);
+    unlock(saved.token, saved.expires);
+  }
 }
 </script>
 </body>

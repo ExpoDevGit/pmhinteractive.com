@@ -141,10 +141,11 @@ Open **pmhinteractive.com/news/editor.html** (it isn't linked anywhere on
 the site). Fill in the title, game and the rest, write the post, and press
 **Publish**. The preview on the right shows it exactly as it will look on the site.
 
-The first time, press **Connect GitHub** and follow the four steps in the box.
-After that, **Publish** puts the post and any images you added onto the site in
-one go. It's live about a minute later. The connection is saved in that browser
-only, so do this once on each computer you post from.
+The page is locked until you press **Sign in with GitHub**. GitHub checks your
+password and two-factor code, then the editor opens, but only for an account that
+can write to this repository. **Publish** puts the post and any images you added
+onto the site in one go, and it's live about a minute later. You stay signed in
+until you close the tab or press **Sign Out**, for 8 hours at most.
 
 - **Edit a published post**: pick it from the drop-down, change it, press Publish.
 - **Images & videos**: drag them into the text box, paste them, or use **Media**.
@@ -156,9 +157,58 @@ only, so do this once on each computer you post from.
 
 ### Who can post
 
-Only GitHub accounts with write access to this repository. Anyone can open the
-editor page, but publishing goes through GitHub, which refuses everyone else.
-Manage access in the repo under **Settings → Collaborators**.
+Only GitHub accounts with write access to this repository. Anyone else who opens
+the editor page gets the sign-in screen and nothing more. Even someone who
+copied the page's code couldn't post, because GitHub refuses them. Manage access
+in the repo under **Settings → Collaborators**.
+
+GitHub decides when to ask for your password and two-factor code. If you're
+already logged into github.com in that browser, signing in can be one click.
+Signing out of github.com makes it ask again next time.
+
+### Editor sign-in (one-time setup)
+
+The sign-in needs two free things the website can't do by itself: a **GitHub
+App** (what you sign in to) and a **Cloudflare Worker**, which holds the app's
+secret key so it never appears in the site's public code.
+
+**1. Two-factor on GitHub.** At github.com/settings/security, make sure
+two-factor authentication is on.
+
+**2. Create the GitHub App** at github.com/settings/apps/new:
+- **GitHub App name:** anything unique, e.g. `PMH News Editor`
+- **Homepage URL:** `https://pmhinteractive.com`
+- **Callback URL:** `https://pmhinteractive.com/news/editor.html`.
+  For local testing, also add `http://localhost:8000/news/editor.html`.
+- Leave **Expire user authorization tokens** ticked
+- **Webhook:** untick **Active**
+- **Repository permissions → Contents:** Read and write
+- **Where can this GitHub App be installed?** Only on this account
+- Click **Create GitHub App**. On the next page, copy the **Client ID**, then
+  click **Generate a new client secret** and copy that too.
+- In the app's left sidebar, click **Install App**, then **Install**. Choose
+  **Only select repositories** and pick **pmhinteractive.com**.
+
+**3. Create the Worker** at dash.cloudflare.com (a free account is fine):
+- **Workers & Pages → Create → Create Worker**, name it `pmh-news-auth`, **Deploy**.
+- **Edit code**, replace everything with the contents of
+  `tools/news-auth-worker.js`, then **Deploy**.
+- **Settings → Variables and Secrets**, then add:
+  - `GITHUB_CLIENT_ID` as **Text**: the Client ID
+  - `GITHUB_CLIENT_SECRET` as **Secret**: the client secret
+- Copy the Worker's address, e.g. `https://pmh-news-auth.yourname.workers.dev`.
+
+**4. Point the editor at them.** In `js/news.js`, fill in `EDITOR_AUTH`:
+
+```js
+export const EDITOR_AUTH = {
+  clientId: 'Iv23li…',
+  tokenUrl: 'https://pmh-news-auth.yourname.workers.dev',
+};
+```
+
+Commit, wait a minute, and the sign-in button works. If the secret ever
+leaks, generate a new one on the GitHub App and update the Worker's secret.
 
 ### Writing by hand
 

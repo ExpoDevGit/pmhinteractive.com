@@ -13,6 +13,14 @@ export const REPO = {
   media:  'pmh-interactive/news/media',
 };
 
+// Editor sign-in, from the one-time setup in SETUP.md ("Editor sign-in").
+// The client ID is meant to be public. The client secret lives only in the
+// Cloudflare Worker (tools/news-auth-worker.js), never here.
+export const EDITOR_AUTH = {
+  clientId: '',   // the GitHub App's Client ID, e.g. 'Iv23li…'
+  tokenUrl: '',   // the Worker's address, e.g. 'https://pmh-news-auth.yourname.workers.dev'
+};
+
 // The key is what goes in a post's `game:` line. Paths are from the site root.
 export const GAMES = {
   'obsessive-shadow':   { name: 'The Obsessive Shadow',                     page: 'pages/obsessive-shadow.html#chapter1',           art: 'images/tos1-cover.jpg' },
