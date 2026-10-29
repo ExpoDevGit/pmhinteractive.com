@@ -611,6 +611,178 @@ footer { background: var(--bg2); border-top: 1px solid var(--border-dim); paddin
 }
 
 /* ════════════════════════════════════════════════════════════
+   NEWS — cards, post pages, platform icons
+   Posts are Markdown in news/posts/; see SETUP.md.
+   ════════════════════════════════════════════════════════════ */
+
+/* Platform icons. The logo is a mask so each can wear its brand colour.
+   --a widens wordmark logos (PICO, iOS, macOS, Switch 2). */
+.plats { display: inline-flex; align-items: center; gap: 0.45em; vertical-align: -0.12em; margin: 0 0.15em; }
+.plat {
+  display: inline-block; flex-shrink: 0;
+  width: calc(1.05em * var(--a, 1)); height: 1.05em;
+  background-color: var(--c, #fff);
+  -webkit-mask: var(--logo) center / contain no-repeat;
+          mask: var(--logo) center / contain no-repeat;
+}
+.plat-steam       { --c: #66c0f4; --logo: url('../images/logos/steam.svg'); }
+.plat-meta        { --c: #2d8cff; --logo: url('../images/logos/meta.svg'); }
+.plat-playstation { --c: #3d8bff; --logo: url('../images/logos/playstation.svg'); }
+.plat-xbox        { --c: #52b043; --logo: url('../images/logos/xbox.svg'); }
+.plat-epic        { --c: #f2f2f2; --logo: url('../images/logos/epicgames.svg'); }
+.plat-pico        { --c: #f2f2f2; --logo: url('../images/logos/pico.svg'); --a: 1.83; }
+.plat-switch      { --c: #ff4554; --logo: url('../images/logos/nintendoswitch.svg'); }
+.plat-switch2     { --c: #ff4554; --logo: url('../images/logos/nintendoswitch2.svg'); --a: 1.5; }
+.plat-ios         { --c: #f2f2f2; --logo: url('../images/logos/ios.svg'); --a: 1.71; }
+.plat-macos       { --c: #f2f2f2; --logo: url('../images/logos/macos.svg'); --a: 2.4; }
+.plat-android     { --c: #3ddc84; --logo: url('../images/logos/android.svg'); }
+
+/* Shown by js/news-feed.js once a game has posts */
+[data-news-link][hidden] { display: none !important; }
+
+/* ── Cards ── */
+#news { background: var(--bg); padding-top: 5.5rem; padding-bottom: 5.5rem; }
+.news-head {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 1.5rem; flex-wrap: wrap; margin-bottom: 2.75rem;
+}
+.news-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.25rem; }
+.news-card {
+  display: flex; flex-direction: column;
+  background: var(--surface); border: 1px solid var(--border-dim);
+  text-decoration: none; color: inherit;
+  transition: background 0.25s, border-color 0.25s;
+}
+.news-card:hover { background: var(--surface2); border-color: var(--border); }
+.news-card-art { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #0b0b0b; }
+.news-card-art img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.6s cubic-bezier(.22,1,.36,1);
+}
+.news-card:hover .news-card-art img { transform: scale(1.05); }
+.news-card-type {
+  position: absolute; top: 0; left: 0;
+  font-family: var(--font-ui); font-size: 0.62rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 0.42rem 0.85rem; background: var(--teal); color: #07120e;
+}
+.news-card-body { display: flex; flex-direction: column; gap: 0.55rem; padding: 1.4rem 1.5rem 1.6rem; flex-grow: 1; }
+.news-meta {
+  display: flex; gap: 0.4rem 0.9rem; flex-wrap: wrap;
+  font-family: var(--font-ui); font-size: 0.64rem; font-weight: 600;
+  letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal);
+}
+.news-meta span { color: var(--text-dim); }
+.news-card-title { font-size: 1.6rem; line-height: 1.02; letter-spacing: 0.02em; }
+.news-card-summary {
+  font-size: 0.95rem; line-height: 1.55;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.news-card .plats { margin: auto 0 0; padding-top: 0.5rem; font-size: 1.05rem; }
+
+.news-filters { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 2rem; }
+.news-filters button {
+  font-family: var(--font-ui); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer;
+  padding: 0.6rem 1rem; border: 1px solid var(--border-dim);
+  background: rgba(255,255,255,0.02); color: var(--text-mid);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.news-filters button:hover { border-color: rgba(255,255,255,0.28); color: #fff; }
+.news-filters button[aria-selected="true"] { border-color: var(--teal); color: var(--teal); background: var(--teal-subtle); }
+.news-empty { grid-column: 1 / -1; padding: 3rem 1.5rem; text-align: center; color: var(--text-dim); background: var(--surface); border: 1px solid var(--border-dim); }
+
+/* ── Post page ── */
+.post-header {
+  position: relative; overflow: hidden;
+  padding: calc(var(--nav-h) + 4.5rem) var(--gutter) 3.5rem;
+  border-bottom: 1px solid var(--border-dim); background: var(--bg2);
+}
+.post-header-bg {
+  position: absolute; inset: -40px;
+  background: center / cover no-repeat;
+  filter: blur(28px) saturate(1.1); opacity: 0.3;
+}
+.post-header::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(to bottom, rgba(14,14,14,0.4), var(--bg2));
+}
+.post-header-inner { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; }
+.post-back, .post-eyebrow {
+  font-family: var(--font-ui); font-size: 0.68rem; font-weight: 600;
+  letter-spacing: 0.16em; text-transform: uppercase;
+}
+.post-back { display: inline-block; margin-bottom: 1.75rem; color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
+.post-back::before { content: '← '; }
+.post-back:hover { color: var(--teal); }
+.post-eyebrow { display: flex; align-items: center; gap: 0.5rem 1rem; flex-wrap: wrap; color: var(--text-dim); margin-bottom: 1.1rem; }
+.post-eyebrow a { color: var(--text); text-decoration: none; }
+.post-eyebrow a:hover { color: var(--teal); }
+.post-type { background: var(--teal); color: #07120e; padding: 0.32rem 0.7rem; }
+.post-title { font-size: clamp(2.4rem, 5.5vw, 4rem); line-height: 0.95; }
+.post-platforms { margin-top: 1.4rem; font-size: 1.35rem; }
+.post-platforms .plats { margin: 0; gap: 0.6em; }
+
+.post-wrap { max-width: 860px; margin: 0 auto; padding: 3rem var(--gutter) 5.5rem; }
+.post-banner { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border: 1px solid var(--border-dim); margin-bottom: 2.75rem; }
+.post-foot { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 3.5rem; padding-top: 2rem; border-top: 1px solid var(--border-dim); }
+.news-more { background: var(--bg2); border-top: 1px solid var(--border-dim); }
+.news-more .section-title { margin-bottom: 2.5rem; font-size: clamp(2rem, 4vw, 3rem); }
+
+/* Rendered Markdown */
+.post-body { color: var(--text-mid); font-size: 1.07rem; line-height: 1.75; overflow-wrap: break-word; }
+.post-body > :first-child { margin-top: 0; }
+.post-body h1, .post-body h2 { font-size: 2.1rem; margin: 2.6rem 0 1rem; padding-bottom: 0.6rem; border-bottom: 1px solid var(--border-dim); }
+.post-body h3 { font-size: 1.55rem; margin: 2.2rem 0 0.8rem; letter-spacing: 0.03em; }
+.post-body h4, .post-body h5, .post-body h6 {
+  font-family: var(--font-ui); font-size: 0.8rem; font-weight: 700; color: var(--teal);
+  letter-spacing: 0.16em; text-transform: uppercase; margin: 1.8rem 0 0.6rem; line-height: 1.4;
+}
+.post-body p, .post-body ul, .post-body ol, .post-body blockquote, .post-body pre, .post-body table, .post-body figure { margin: 0 0 1.15rem; }
+.post-body strong { color: #fff; font-weight: 700; }
+.post-body em { color: var(--text); }
+.post-body a { color: var(--teal); text-decoration: underline; text-decoration-color: rgba(0,200,150,0.4); text-underline-offset: 0.18em; }
+.post-body a:hover { text-decoration-color: var(--teal); }
+.post-body ul, .post-body ol { padding-left: 1.35rem; }
+.post-body li { margin-bottom: 0.45rem; padding-left: 0.2rem; }
+.post-body li::marker { color: var(--teal); }
+.post-body li > ul, .post-body li > ol { margin: 0.45rem 0 0; }
+.post-body hr { border: 0; border-top: 1px solid var(--border-dim); margin: 2.5rem 0; }
+.post-body blockquote { border-left: 2px solid var(--teal); padding: 0.2rem 0 0.2rem 1.2rem; color: var(--text); font-style: italic; }
+.post-body code { font-family: var(--font-mono); font-size: 0.88em; background: var(--surface2); padding: 0.1em 0.35em; color: var(--text); }
+.post-body pre { background: var(--surface); border: 1px solid var(--border-dim); padding: 1rem 1.2rem; overflow-x: auto; }
+.post-body pre code { background: none; padding: 0; }
+.post-body table { width: 100%; border-collapse: collapse; font-size: 0.97rem; display: block; overflow-x: auto; }
+.post-body th, .post-body td { border: 1px solid var(--border-dim); padding: 0.55rem 0.8rem; text-align: left; }
+.post-body th { font-family: var(--font-ui); font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text); background: var(--surface); }
+.post-body img, .post-body video { max-width: 100%; height: auto; vertical-align: middle; }
+.post-body .news-media { margin: 2rem 0; }
+.post-body .news-media img, .post-body .news-media video { display: block; width: 100%; border: 1px solid var(--border-dim); background: #000; }
+.post-body .news-media figcaption { margin-top: 0.6rem; font-size: 0.9rem; color: var(--text-dim); text-align: center; }
+.post-body .embed { position: relative; aspect-ratio: 16 / 9; border: 1px solid var(--border-dim); background: #000; }
+.post-body .embed iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+/* ::: platform blocks */
+.plat-section { margin: 2rem 0; border: 1px solid var(--border-dim); border-left: 2px solid var(--teal); background: var(--surface); padding: 0 1.5rem 0.4rem; }
+.plat-section-head {
+  display: flex; align-items: center; gap: 0.8rem;
+  margin: 0 -1.5rem 1.1rem; padding: 0.8rem 1.5rem;
+  border-bottom: 1px solid var(--border-dim); background: rgba(255,255,255,0.02);
+  font-family: var(--font-ui); font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--text);
+}
+.plat-section-head .plats { margin: 0; font-size: 1.15rem; }
+
+@media (max-width: 640px) {
+  .news-grid { grid-template-columns: 1fr; }
+  .post-header { padding: calc(var(--nav-h) + 3rem) var(--gutter) 2.5rem; }
+  .post-wrap { padding: 2rem var(--gutter) 4rem; }
+  .post-banner { margin-bottom: 2rem; }
+  .plat-section { padding: 0 1rem 0.2rem; }
+  .plat-section-head { margin: 0 -1rem 1rem; padding: 0.75rem 1rem; }
+}
+
+/* ════════════════════════════════════════════════════════════
    ANIMATION
    ════════════════════════════════════════════════════════════ */
 @keyframes fadeUp {

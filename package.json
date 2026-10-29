@@ -1,0 +1,8 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "news": "node tools/build-news.js",
+    "preview": "node tools/build-news.js && cd pmh-interactive && python3 -m http.server 8000"
+  }
+}

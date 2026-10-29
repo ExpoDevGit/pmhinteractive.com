@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>News Editor — PMH Interactive</title>
+  <link rel="stylesheet" href="../css/style.css" />
+  <link rel="icon" href="../images/favicon.ico" />
+  <style>
+    body { background: var(--bg); }
+
+    /* ── Top bar ── */
+    .ed-bar {
+      position: sticky; top: 0; z-index: 50;
+      display: flex; align-items: center; gap: 1rem 1.5rem; flex-wrap: wrap;
+      padding: 0.85rem var(--gutter);
+      background: rgba(10,10,10,0.94); border-bottom: 1px solid var(--border-dim);
+      backdrop-filter: blur(18px);
+    }
+    .ed-bar .nav-logo { font-size: 1.2rem; }
+    .ed-bar-title {
+      font-family: var(--font-ui); font-size: 0.68rem; font-weight: 600;
+      letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim);
+      border-left: 1px solid var(--border-dim); padding-left: 1.25rem;
+    }
+    .ed-bar-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: stretch; margin-left: auto; }
+    .ed-bar .btn { padding: 0.7rem 1.5rem; }
+    button.store-btn { cursor: pointer; }
+    .ed-select {
+      font-family: var(--font-ui); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em;
+      background: var(--surface); color: var(--text-mid);
+      border: 1px solid var(--border-dim); padding: 0 0.8rem; max-width: 260px;
+    }
+    #account.connected { border-color: var(--border); color: var(--teal); }
+
+    /* ── Layout ── */
+    .ed { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+    .ed-write { padding: 2rem var(--gutter) 4rem; border-right: 1px solid var(--border-dim); display: flex; flex-direction: column; gap: 1.4rem; }
+    .ed-preview { position: sticky; top: 64px; max-height: calc(100vh - 64px); overflow-y: auto; background: var(--bg); }
+    .ed-preview .post-header { padding: 2.5rem 2.25rem 2rem; }
+    .ed-preview .post-wrap { padding: 2rem 2.25rem 4rem; }
+    .ed-preview .post-title { font-size: clamp(2rem, 3.6vw, 3.2rem); }
+    .ed-preview-label {
+      position: sticky; top: 0; z-index: 5;
+      font-family: var(--font-ui); font-size: 0.62rem; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--text-dim);
+      padding: 0.55rem 2.25rem; background: var(--surface); border-bottom: 1px solid var(--border-dim);
+    }
+
+    /* ── Fields ── */
+    .ed-field { display: flex; flex-direction: column; gap: 0.45rem; min-width: 0; }
+    .ed-field > label, .ed-label {
+      font-family: var(--font-ui); font-size: 0.66rem; font-weight: 600;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim);
+    }
+    .ed-hint { font-family: var(--font-ui); font-size: 0.72rem; color: var(--text-dim); letter-spacing: 0.02em; }
+    .ed-hint code { font-family: var(--font-mono); color: var(--text-mid); }
+    .ed input[type="text"], .ed input[type="date"], .ed input[type="url"], .ed select, .ed textarea,
+    dialog input[type="text"], dialog input[type="url"] {
+      width: 100%; font: inherit; font-size: 1rem; color: var(--text);
+      background: var(--surface); border: 1px solid var(--border-dim);
+      padding: 0.7rem 0.85rem; border-radius: 0; color-scheme: dark;
+      transition: border-color 0.2s;
+    }
+    .ed input:focus, .ed select:focus, .ed textarea:focus, dialog input:focus { outline: none; border-color: var(--teal); }
+    #f-title { font-family: var(--font-display); font-size: 1.9rem; letter-spacing: 0.02em; padding: 0.55rem 0.85rem; }
+    .ed-row { display: grid; grid-template-columns: 2fr 1.2fr 0.8fr 1.1fr; gap: 0.75rem; }
+    .ed-invalid { border-color: #ff6b6b !important; }
+
+    .plat-toggles { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+    .plat-toggle {
+      display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer;
+      font-family: var(--font-ui); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.06em;
+      padding: 0.5rem 0.75rem; color: var(--text-dim);
+      background: rgba(255,255,255,0.02); border: 1px solid var(--border-dim);
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .plat-toggle .plats { margin: 0; font-size: 1rem; filter: grayscale(1); opacity: 0.55; transition: filter 0.2s, opacity 0.2s; }
+    .plat-toggle:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+    .plat-toggle[aria-pressed="true"] { color: #fff; border-color: var(--teal); background: var(--teal-subtle); }
+    .plat-toggle[aria-pressed="true"] .plats { filter: none; opacity: 1; }
+
+    .ed-thumb { display: grid; grid-template-columns: 220px 1fr; gap: 1rem; align-items: start; }
+    .ed-thumb-drop {
+      position: relative; aspect-ratio: 16 / 9; cursor: pointer; overflow: hidden;
+      border: 1px dashed rgba(255,255,255,0.22); background: var(--surface) center / cover no-repeat;
+      display: flex; align-items: center; justify-content: center; text-align: center;
+      font-family: var(--font-ui); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-dim);
+      transition: border-color 0.2s;
+    }
+    .ed-thumb-drop span { background: rgba(10,10,10,0.75); padding: 0.4rem 0.6rem; }
+    .ed-thumb-drop:hover, .ed-thumb-drop.drag { border-color: var(--teal); color: var(--teal); }
+    .ed-thumb-side { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    /* ── Body editor ── */
+    .ed-toolbar {
+      display: flex; flex-wrap: wrap; gap: 1px; align-items: stretch;
+      background: var(--border-dim); border: 1px solid var(--border-dim); border-bottom: 0;
+    }
+    .ed-toolbar button {
+      min-width: 38px; height: 38px; padding: 0 0.6rem; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+      font-family: var(--font-ui); font-size: 0.78rem; font-weight: 600; color: var(--text-mid);
+      background: var(--surface); border: 0; transition: background 0.15s, color 0.15s;
+    }
+    .ed-toolbar button:hover { background: var(--surface2); color: #fff; }
+    .ed-toolbar .sep { width: 10px; background: var(--surface); }
+    .ed-toolbar .plats { margin: 0; font-size: 1rem; }
+    .ed-toolbar svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+    #f-body {
+      min-height: 460px; resize: vertical; tab-size: 2;
+      font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.65;
+    }
+    #f-body.drag { border-color: var(--teal); background: var(--teal-subtle); }
+
+    .ed-uploads { border: 1px solid var(--border); background: var(--teal-subtle); padding: 0.9rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .ed-uploads ul { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
+    .ed-uploads li { display: flex; justify-content: space-between; gap: 1rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text); }
+    .ed-uploads li span { color: var(--text-dim); }
+
+    .ed-help { border: 1px solid var(--border-dim); background: var(--surface); }
+    .ed-help summary { cursor: pointer; padding: 0.8rem 1rem; font-family: var(--font-ui); font-size: 0.7rem; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-mid); }
+    .ed-help table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    .ed-help td { padding: 0.5rem 1rem; border-top: 1px solid var(--border-dim); vertical-align: top; }
+    .ed-help td:first-child { font-family: var(--font-mono); font-size: 0.8rem; color: var(--text); white-space: pre-wrap; width: 52%; }
+
+    /* ── Status + dialogs ── */
+    .ed-status {
+      position: fixed; left: 50%; bottom: 1.5rem; transform: translateX(-50%); z-index: 100;
+      max-width: min(640px, calc(100vw - 2rem));
+      font-family: var(--font-ui); font-size: 0.82rem; color: var(--text);
+      background: var(--surface2); border: 1px solid var(--border); padding: 0.85rem 1.2rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+    }
+    .ed-status.error { border-color: rgba(255,107,107,0.6); color: #ffb3b3; }
+
+    dialog {
+      margin: auto; width: min(560px, calc(100vw - 2rem)); padding: 0;
+      background: var(--surface); color: var(--text-mid); border: 1px solid var(--border);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.7);
+    }
+    dialog::backdrop { background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); }
+    dialog form { display: flex; flex-direction: column; gap: 1rem; padding: 1.75rem; }
+    dialog h2 { font-size: 1.9rem; }
+    dialog p, dialog li { font-size: 0.97rem; line-height: 1.6; }
+    dialog ol { padding-left: 1.2rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    dialog a { color: var(--teal); }
+    dialog strong { color: var(--text); font-weight: 700; }
+    .dlg-actions { display: flex; gap: 0.5rem; justify-content: flex-end; flex-wrap: wrap; margin-top: 0.5rem; }
+    .dlg-actions .btn { padding: 0.75rem 1.5rem; }
+    .dlg-or { font-family: var(--font-ui); font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-dim); text-align: center; }
+
+    @media (max-width: 1100px) {
+      .ed { grid-template-columns: 1fr; }
+      .ed-write { border-right: 0; }
+      .ed-preview { position: static; max-height: none; border-top: 1px solid var(--border-dim); }
+    }
+    @media (max-width: 640px) {
+      .ed-row { grid-template-columns: 1fr 1fr; }
+      .ed-thumb { grid-template-columns: 1fr; }
+      .ed-bar-title { display: none; }
+      .ed-bar-actions { margin-left: 0; width: 100%; }
+      .ed-bar-actions > * { flex: 1 1 auto; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="ed-bar">
+  <a href="../index.html" class="nav-logo">
+    <img src="../PMH_Interactive_ICON_1.png" alt="" class="nav-logo-img" />
+    PMH <span>&nbsp;Interactive</span>
+  </a>
+  <span class="ed-bar-title">News Editor</span>
+  <div class="ed-bar-actions">
+    <button type="button" id="new-post" class="store-btn">New Post</button>
+    <select id="open-post" class="ed-select" aria-label="Edit a published post">
+      <option value="">Edit a published post…</option>
+    </select>
+    <button type="button" id="delete-post" class="store-btn" hidden>Delete</button>
+    <button type="button" id="account" class="store-btn">Connect GitHub</button>
+    <button type="button" id="publish" class="btn btn-primary">Publish</button>
+  </div>
+</header>
+
+<main class="ed">
+  <div class="ed-write">
+
+    <div class="ed-field">
+      <label for="f-title">Title</label>
+      <input type="text" id="f-title" placeholder="v2.0.9 Is Now Live!" autocomplete="off" />
+      <div class="ed-hint">Will be posted at <code id="post-url"></code></div>
+    </div>
+
+    <div class="ed-row">
+      <div class="ed-field">
+        <label for="f-game">Game</label>
+        <select id="f-game"></select>
+      </div>
+      <div class="ed-field">
+        <label for="f-type">Type</label>
+        <select id="f-type"></select>
+      </div>
+      <div class="ed-field">
+        <label for="f-version">Version</label>
+        <input type="text" id="f-version" placeholder="2.0.9" autocomplete="off" />
+      </div>
+      <div class="ed-field">
+        <label for="f-date">Date</label>
+        <input type="date" id="f-date" />
+      </div>
+    </div>
+
+    <div class="ed-field">
+      <span class="ed-label">Platforms this post covers</span>
+      <div class="plat-toggles" id="f-platforms"></div>
+    </div>
+
+    <div class="ed-field">
+      <span class="ed-label">Thumbnail</span>
+      <div class="ed-thumb">
+        <div class="ed-thumb-drop" id="thumb-drop" role="button" tabindex="0" aria-label="Choose a thumbnail image"><span>Drop or click to choose</span></div>
+        <div class="ed-thumb-side">
+          <input type="text" id="f-thumbnail" placeholder="media/my-image.jpg or https://…" autocomplete="off" />
+          <div class="ed-hint">16:9 works best (1280×720 or larger). Leave it empty to use the game's cover art.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ed-field">
+      <label for="f-summary">Summary <span style="text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <input type="text" id="f-summary" placeholder="One line for the news card and link previews. Leave empty to use the first paragraph." autocomplete="off" />
+    </div>
+
+    <div class="ed-field">
+      <span class="ed-label">Post</span>
+      <div>
+        <div class="ed-toolbar" id="toolbar">
+          <button type="button" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+          <button type="button" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+          <button type="button" data-cmd="strike" title="Strikethrough"><s>S</s></button>
+          <button type="button" data-cmd="h2" title="Heading">H2</button>
+          <button type="button" data-cmd="h3" title="Sub-heading">H3</button>
+          <span class="sep"></span>
+          <button type="button" data-cmd="ul" title="Bullet list"><svg viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/></svg></button>
+          <button type="button" data-cmd="ol" title="Numbered list"><svg viewBox="0 0 24 24"><path d="M10 6h10M10 12h10M10 18h10M4 4.5h1.5V9M4 9h3M4 15h3l-3 4h3"/></svg></button>
+          <button type="button" data-cmd="quote" title="Quote"><svg viewBox="0 0 24 24"><path d="M5 7h5v5H6.5c0 2 1 3.5 3 4M14 7h5v5h-3.5c0 2 1 3.5 3 4"/></svg></button>
+          <button type="button" data-cmd="hr" title="Divider"><svg viewBox="0 0 24 24"><path d="M3 12h18"/></svg></button>
+          <span class="sep"></span>
+          <button type="button" data-cmd="link" title="Link (Ctrl+K)"><svg viewBox="0 0 24 24"><path d="M10 14a4.5 4.5 0 0 0 6.4 0l3-3a4.5 4.5 0 0 0-6.4-6.4l-1 1M14 10a4.5 4.5 0 0 0-6.4 0l-3 3a4.5 4.5 0 0 0 6.4 6.4l1-1"/></svg></button>
+          <button type="button" data-cmd="media" title="Image, video or YouTube"><svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="15"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 16l-5-5-8.5 8.5"/></svg> Media</button>
+          <button type="button" data-cmd="section" title="Section that only applies to some platforms"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16"/><path d="M3 9h18"/></svg> Platform Section</button>
+          <span class="sep"></span>
+          <span id="plat-buttons" style="display:contents;"></span>
+        </div>
+        <textarea id="f-body" spellcheck="true" placeholder="Write your post here. Drag in or paste screenshots and videos.
+
+- Fixed the thing :steam: :ps:
+- Added the other thing :meta:"></textarea>
+      </div>
+      <div class="ed-hint">Click a platform icon in the toolbar to drop it into the text. Drag &amp; drop or paste images and videos straight into the box.</div>
+    </div>
+
+    <div class="ed-uploads" id="uploads" hidden>
+      <span class="ed-label" style="color:var(--teal);">Uploads with this post</span>
+      <ul></ul>
+    </div>
+
+    <details class="ed-help">
+      <summary>Formatting cheat sheet</summary>
+      <table>
+        <tr><td>## Big heading
+### Smaller heading</td><td>Section headings</td></tr>
+        <tr><td>**bold**  *italic*  ~~strike~~</td><td>Text styles</td></tr>
+        <tr><td>- item
+- another item</td><td>Bullet list (use 1. 2. 3. for numbers)</td></tr>
+        <tr><td>[Steam page](https://store.steampowered.com/…)</td><td>Link</td></tr>
+        <tr><td>:steam: :meta: :ps: :xbox: :epic: :pico:
+:switch: :switch2: :ios: :macos: :android:</td><td>Platform icons, anywhere in a line. <code>:quest:</code> and <code>:playstation:</code> work too.</td></tr>
+        <tr><td>::: ps xbox
+- Only on consoles
+:::</td><td>A boxed section for certain platforms. Add a title with <code>::: ps | PS5 Only</code></td></tr>
+        <tr><td>![Caption](media/shot.jpg)</td><td>Image (a video file plays as a video)</td></tr>
+        <tr><td>https://youtu.be/…</td><td>A YouTube link on its own line becomes a player</td></tr>
+        <tr><td>---</td><td>Divider</td></tr>
+      </table>
+    </details>
+  </div>
+
+  <aside class="ed-preview" aria-label="Preview">
+    <div class="ed-preview-label">Preview</div>
+    <header class="post-header">
+      <div class="post-header-bg" id="p-bg"></div>
+      <div class="post-header-inner">
+        <div class="post-eyebrow">
+          <span class="post-type" id="p-type"></span>
+          <a id="p-game"></a>
+          <time id="p-date"></time>
+        </div>
+        <h1 class="post-title" id="p-title"></h1>
+        <div class="post-platforms" id="p-platforms"></div>
+      </div>
+    </header>
+    <div class="post-wrap">
+      <img alt="" class="post-banner" id="p-banner" />
+      <div class="post-body" id="p-body"></div>
+    </div>
+  </aside>
+</main>
+
+<div class="ed-status" id="status" role="status" hidden></div>
+<input type="file" id="file-pick" accept="image/*,video/*" hidden />
+
+<!-- ── Link ── -->
+<dialog id="dlg-link">
+  <form method="dialog">
+    <h2>Add a Link</h2>
+    <div class="ed-field"><label for="link-text" class="ed-label">Text</label><input type="text" id="link-text" /></div>
+    <div class="ed-field"><label for="link-url" class="ed-label">Address</label><input type="url" id="link-url" placeholder="https://" required /></div>
+    <div class="dlg-actions">
+      <button type="button" data-close class="store-btn">Cancel</button>
+      <button value="ok" class="btn btn-primary">Add Link</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Media ── -->
+<dialog id="dlg-media">
+  <form method="dialog">
+    <h2>Add Media</h2>
+    <button type="button" class="store-btn accent" id="media-file" style="justify-content:center;">Upload an image or video from this device</button>
+    <div class="dlg-or">or paste a link</div>
+    <div class="ed-field">
+      <input type="url" id="media-url" placeholder="YouTube link, or a link to an image or video" />
+    </div>
+    <div class="ed-field">
+      <label for="media-caption" class="ed-label">Caption (optional)</label>
+      <input type="text" id="media-caption" />
+    </div>
+    <div class="dlg-actions">
+      <button type="button" data-close class="store-btn">Cancel</button>
+      <button value="ok" class="btn btn-primary">Insert</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Platform section ── -->
+<dialog id="dlg-section">
+  <form method="dialog">
+    <h2>Platform Section</h2>
+    <p>Boxes off part of the post as only applying to certain platforms, like a PlayStation-only list of fixes. Anything you had selected goes inside it.</p>
+    <div class="plat-toggles" id="section-platforms"></div>
+    <div class="ed-field">
+      <label for="section-label" class="ed-label">Title (optional)</label>
+      <input type="text" id="section-label" placeholder="Defaults to the platform names" />
+    </div>
+    <div class="dlg-actions">
+      <button type="button" data-close class="store-btn">Cancel</button>
+      <button value="ok" class="btn btn-primary">Insert Section</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Connect ── -->
+<dialog id="dlg-connect">
+  <form method="dialog">
+    <h2>Connect to GitHub</h2>
+    <div id="connect-off">
+      <p>Connecting lets <strong>Publish</strong> put the post and its images straight onto the site. Only a GitHub account with write access to the website's repository can do this. The key is saved in this browser and nowhere else.</p>
+      <ol style="margin-top:1rem;">
+        <li><a id="token-link" target="_blank" rel="noopener">Create a token on GitHub</a>.</li>
+        <li>Under <strong>Repository access</strong>, pick <strong>Only select repositories</strong> → <strong>pmhinteractive.com</strong>.</li>
+        <li>Under <strong>Permissions → Repository permissions</strong>, set <strong>Contents</strong> to <strong>Read and write</strong>.</li>
+        <li>Click <strong>Generate token</strong> and paste it below.</li>
+      </ol>
+      <div class="ed-field" style="margin-top:1rem;"><input type="text" id="token" placeholder="github_pat_…" autocomplete="off" spellcheck="false" /></div>
+    </div>
+    <div id="connect-on" hidden>
+      <p>Connected as <strong id="connect-user"></strong>. Publishing goes straight to the site.</p>
+    </div>
+    <div class="dlg-actions">
+      <button type="button" data-close class="store-btn">Close</button>
+      <button type="button" class="store-btn" id="disconnect" hidden>Disconnect</button>
+      <button value="ok" class="btn btn-primary" id="connect-go">Connect</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- ── Publish without connecting ── -->
+<dialog id="dlg-manual">
+  <form method="dialog">
+    <h2>Publish Through GitHub</h2>
+    <p>You're not connected, so this takes a couple of steps on GitHub. Connect GitHub and you can skip all this next time.</p>
+    <ol>
+      <li id="manual-media" hidden>Upload these files to the <a id="manual-upload" target="_blank" rel="noopener">news media folder</a> (download them first if you pasted them in): <span id="manual-files"></span></li>
+      <li><a id="manual-post" target="_blank" rel="noopener">Open the post on GitHub</a>. <span id="manual-paste">The post has also been copied, so paste it over everything in the file.</span> Then press <strong>Commit changes</strong>.</li>
+    </ol>
+    <div class="dlg-actions"><button value="ok" class="btn btn-primary">Done</button></div>
+  </form>
+</dialog>
+
+<!-- ── Published ── -->
+<dialog id="dlg-done">
+  <form method="dialog">
+    <h2>Published</h2>
+    <p>It'll be live in about a minute at<br /><a id="done-url" target="_blank" rel="noopener"></a></p>
+    <p class="ed-hint">You can <a id="done-actions" target="_blank" rel="noopener">watch it deploy on GitHub</a>.</p>
+    <div class="dlg-actions"><button value="ok" class="btn btn-primary">Nice</button></div>
+  </form>
+</dialog>
+
+<script type="module">
+import { Marked } from '../js/vendor/marked.esm.js';
+import {
+  GAMES, PLATFORMS, POST_TYPES, REPO, SITE_URL,
+  createMarkdown, parsePost, serializePost, validatePost,
+  platformIcons, slugify, formatDate, sitePath, fromRoot, escapeHtml,
+} from '../js/news.js';
+
+const $ = (id) => document.getElementById(id);
+const DRAFT_KEY = 'pmh-news-draft';
+const TOKEN_KEY = 'pmh-news-token';
+const API = `https://api.github.com/repos/${REPO.owner}/${REPO.name}`;
+const GITHUB = `https://github.com/${REPO.owner}/${REPO.name}`;
+
+const store = {
+  get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+  set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, v); } catch {} },
+};
+
+const uploads = new Map();   // site path → File, waiting to go up with the next publish
+const previews = new Map();  // site path → blob: URL, so the preview can show them first
+const render = createMarkdown(Marked, { root: '../', media: previews });
+
+let token = store.get(TOKEN_KEY);
+let login = null;            // GitHub username once the token checks out
+let editing = null;          // slug of the published post being edited, if any
+let lastSaved = '';          // serialized post as last loaded or published
+
+const f = {
+  title: $('f-title'), game: $('f-game'), type: $('f-type'), version: $('f-version'),
+  date: $('f-date'), thumbnail: $('f-thumbnail'), summary: $('f-summary'), body: $('f-body'),
+};
+
+// ════════ Form ════════
+
+f.game.innerHTML = Object.entries(GAMES).map(([k, g]) => `<option value="${k}">${escapeHtml(g.name)}</option>`).join('');
+f.type.innerHTML = POST_TYPES.map(t => `<option>${t}</option>`).join('');
+
+function toggles(container) {
+  container.innerHTML = Object.entries(PLATFORMS).map(([k, name]) =>
+    `<button type="button" class="plat-toggle" data-plat="${k}" aria-pressed="false">${platformIcons([k])}${name}</button>`).join('');
+  container.addEventListener('click', (e) => {
+    const b = e.target.closest('.plat-toggle');
+    if (!b) return;
+    b.setAttribute('aria-pressed', b.getAttribute('aria-pressed') !== 'true');
+    container.dispatchEvent(new Event('input', { bubbles: true }));
+  });
+}
+const pressed = (container) => [...container.querySelectorAll('[aria-pressed="true"]')].map(b => b.dataset.plat);
+const press = (container, keys) => container.querySelectorAll('.plat-toggle')
+  .forEach(b => b.setAttribute('aria-pressed', keys.includes(b.dataset.plat)));
+
+toggles($('f-platforms'));
+toggles($('section-platforms'));
+
+$('plat-buttons').innerHTML = Object.entries(PLATFORMS).map(([k, name]) =>
+  `<button type="button" data-icon="${k}" title="Insert ${name} icon">${platformIcons([k])}</button>`).join('');
+
+const today = () => new Date().toLocaleDateString('en-CA');
+
+function readForm() {
+  return {
+    title: f.title.value.trim(),
+    game: f.game.value,
+    type: f.type.value,
+    version: f.version.value.trim(),
+    date: f.date.value,
+    platforms: pressed($('f-platforms')),
+    thumbnail: f.thumbnail.value.trim(),
+    summary: f.summary.value.trim(),
+    draft: false,
+    body: f.body.value,
+  };
+}
+
+function writeForm(post) {
+  f.title.value = post.title;
+  f.game.value = GAMES[post.game] ? post.game : Object.keys(GAMES)[0];
+  f.type.value = POST_TYPES.includes(post.type) ? post.type : POST_TYPES[0];
+  f.version.value = post.version;
+  f.date.value = post.date || today();
+  f.thumbnail.value = post.thumbnail;
+  f.summary.value = post.summary;
+  f.body.value = post.body;
+  press($('f-platforms'), post.platforms);
+  update();
+}
+
+const blank = () => ({ title: '', game: 'obsessive-shadow', type: 'Patch Notes', version: '', date: today(), platforms: [], thumbnail: '', summary: '', draft: false, body: '' });
+
+const slugFor = (post) => editing || `${post.date}-${slugify(post.title) || 'untitled'}`;
+const isDirty = () => serializePost(readForm()) !== lastSaved && (f.title.value.trim() || f.body.value.trim());
+
+// ════════ Preview ════════
+
+let frame = 0;
+function update() {
+  cancelAnimationFrame(frame);
+  frame = requestAnimationFrame(() => {
+    const post = readForm();
+    const game = GAMES[post.game];
+    const thumb = post.thumbnail
+      ? previews.get(sitePath(post.thumbnail)) || fromRoot('../', sitePath(post.thumbnail))
+      : fromRoot('../', game.art);
+
+    $('p-type').textContent = [post.type, post.version && `v${post.version.replace(/^v/i, '')}`].filter(Boolean).join(' · ');
+    $('p-game').textContent = game.name;
+    $('p-date').textContent = formatDate(post.date);
+    $('p-title').textContent = post.title || 'Untitled post';
+    $('p-platforms').innerHTML = platformIcons(post.platforms);
+    $('p-bg').style.backgroundImage = `url("${thumb}")`;
+    $('p-banner').src = thumb;
+    $('p-body').innerHTML = render(post.body);
+    $('thumb-drop').style.backgroundImage = `url("${thumb}")`;
+    $('post-url').textContent = `${SITE_URL.replace(/^https:\/\//, '')}/news/${slugFor(post)}/`;
+    listUploads(post);
+
+    store.set(DRAFT_KEY, JSON.stringify({ post, editing }));
+  });
+}
+
+document.querySelector('.ed-write').addEventListener('input', update);
+document.querySelector('.ed-write').addEventListener('change', update);
+
+// ════════ Writing helpers ════════
+
+const body = f.body;
+
+// Goes through execCommand where it can so Ctrl+Z still works.
+function replace(start, end, text, selStart = start + text.length, selEnd = selStart) {
+  body.focus();
+  body.setSelectionRange(start, end);
+  if (!document.execCommand('insertText', false, text)) body.setRangeText(text, start, end);
+  body.setSelectionRange(selStart, selEnd);
+  update();
+}
+
+function wrap(mark, placeholder) {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  const text = value.slice(a, b) || placeholder;
+  replace(a, b, mark + text + mark, a + mark.length, a + mark.length + text.length);
+}
+
+function prefixLines(prefix) {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  const start = value.lastIndexOf('\n', a - 1) + 1;
+  const stop = value.indexOf('\n', b);
+  const end = stop < 0 ? value.length : stop;
+  const lines = value.slice(start, end).split('\n').map((line, i) =>
+    (prefix === '1. ' ? `${i + 1}. ` : prefix) + line.replace(/^(#{1,6} |[-*+] |\d+\. |> )/, ''));
+  const text = lines.join('\n');
+  replace(start, end, text, start, start + text.length);
+}
+
+// Puts text on lines of its own, with a blank line either side, and leaves the
+// caret below it. Returns where the text starts.
+function insertBlock(text) {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  const before = value.slice(0, a);
+  const after = value.slice(b);
+  const lead = !before || before.endsWith('\n\n') ? '' : before.endsWith('\n') ? '\n' : '\n\n';
+  const trail = after.startsWith('\n\n') ? '' : after.startsWith('\n') ? '\n' : '\n\n';
+  replace(a, b, lead + text + trail);
+  return a + lead.length;
+}
+
+function insertInline(text) {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  const pad = a > 0 && !/\s/.test(value[a - 1]) ? ' ' : '';
+  replace(a, b, pad + text);
+}
+
+const commands = {
+  bold:   () => wrap('**', 'bold text'),
+  italic: () => wrap('*', 'italic text'),
+  strike: () => wrap('~~', 'struck text'),
+  h2:     () => prefixLines('## '),
+  h3:     () => prefixLines('### '),
+  ul:     () => prefixLines('- '),
+  ol:     () => prefixLines('1. '),
+  quote:  () => prefixLines('> '),
+  hr:     () => insertBlock('---'),
+  link:   openLinkDialog,
+  media:  openMediaDialog,
+  section: openSectionDialog,
+};
+
+$('toolbar').addEventListener('click', (e) => {
+  const b = e.target.closest('button');
+  if (!b) return;
+  if (b.dataset.icon) insertInline(`:${b.dataset.icon}:`);
+  else commands[b.dataset.cmd]?.();
+});
+
+body.addEventListener('keydown', (e) => {
+  if (!(e.ctrlKey || e.metaKey)) return;
+  const cmd = { b: 'bold', i: 'italic', k: 'link' }[e.key.toLowerCase()];
+  if (cmd) { e.preventDefault(); commands[cmd](); }
+});
+
+// Enter inside a list carries the bullet on; Enter on an empty bullet ends the list.
+body.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  if (a !== b) return;
+  const lineStart = value.lastIndexOf('\n', a - 1) + 1;
+  const line = value.slice(lineStart, a);
+  const m = /^(\s*)([-*+]|(\d+)\.)( +)/.exec(line);
+  if (!m) return;
+  e.preventDefault();
+  if (line.trim() === m[2]) return replace(lineStart, a, '');
+  const bullet = m[3] ? `${+m[3] + 1}.` : m[2];
+  replace(a, a, `\n${m[1]}${bullet}${m[4]}`);
+});
+
+// ════════ Dialogs ════════
+
+// Cancel buttons are plain buttons, so Enter in a field always means the main action.
+document.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => b.closest('dialog').close()));
+
+function ask(dialog, onOk) {
+  dialog.returnValue = '';
+  dialog.showModal();
+  dialog.addEventListener('close', () => {
+    if (dialog.returnValue === 'ok') onOk();
+    else body.focus();
+  }, { once: true });
+}
+
+function openLinkDialog() {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  const selected = value.slice(a, b);
+  const isUrl = /^https?:\/\//.test(selected);
+  $('link-text').value = isUrl ? '' : selected;
+  $('link-url').value = isUrl ? selected : '';
+  ask($('dlg-link'), () => {
+    const url = $('link-url').value.trim();
+    const text = $('link-text').value.trim() || url;
+    replace(a, b, `[${text}](${url})`);
+  });
+  (selected && !isUrl ? $('link-url') : $('link-text')).focus();
+}
+
+let mediaFile = null;
+function openMediaDialog() {
+  const { selectionStart: a, selectionEnd: b } = body;
+  $('media-url').value = '';
+  $('media-caption').value = '';
+  ask($('dlg-media'), () => {
+    const url = $('media-url').value.trim();
+    if (!url) return;
+    const caption = $('media-caption').value.trim();
+    body.setSelectionRange(a, b);
+    if (/youtu\.?be/.test(url)) insertBlock(url);
+    else insertBlock(`![${caption}](${url}${caption ? ` "${caption.replace(/"/g, '')}"` : ''})`);
+  });
+  $('media-file').onclick = () => {
+    $('dlg-media').close();
+    pickFile((file) => {
+      body.setSelectionRange(a, b);
+      insertFile(file, $('media-caption').value.trim());
+    });
+  };
+}
+
+function openSectionDialog() {
+  const { selectionStart: a, selectionEnd: b, value } = body;
+  press($('section-platforms'), []);
+  $('section-label').value = '';
+  ask($('dlg-section'), () => {
+    const keys = pressed($('section-platforms'));
+    if (!keys.length) return status('Pick at least one platform for the section.', true);
+    const label = $('section-label').value.trim();
+    const inner = value.slice(a, b).trim() || '- ';
+    body.setSelectionRange(a, b);
+    const text = `::: ${keys.join(' ')}${label ? ` | ${label}` : ''}\n${inner}\n:::`;
+    const at = insertBlock(text);
+    if (inner === '- ') {
+      const caret = at + text.indexOf('\n- ') + 3;
+      body.setSelectionRange(caret, caret);
+    }
+  });
+}
+
+// ════════ Media files ════════
+
+function pickFile(onPick, accept = 'image/*,video/*') {
+  const input = $('file-pick');
+  input.accept = accept;
+  input.value = '';
+  input.onchange = () => input.files[0] && onPick(input.files[0]);
+  input.click();
+}
+
+// Returns the path to write in the post, e.g. "media/2026-10-28-boss-fight.png".
+function addUpload(file) {
+  if (file.size > 95 * 1024 * 1024) {
+    status(`${file.name} is over GitHub's 100 MB limit. Put it on YouTube and paste the link instead.`, true);
+    return null;
+  }
+  if (file.size > 25 * 1024 * 1024) status(`${file.name} is big. It'll work, but a YouTube link loads faster for players.`);
+
+  const ext = (file.name.match(/\.[a-z0-9]+$/i)?.[0] || `.${file.type.split('/')[1] || 'bin'}`).toLowerCase();
+  let stem = slugify(file.name.replace(/\.[^.]+$/, ''));
+  if (!stem || /^(image|img|screenshot|untitled|video)$/.test(stem)) stem = `${stem || 'image'}-${Math.random().toString(36).slice(2, 6)}`;
+  let path = `news/media/${today()}-${stem}${ext}`;
+  for (let n = 2; uploads.has(path) && uploads.get(path) !== file; n++) path = `news/media/${today()}-${stem}-${n}${ext}`;
+
+  uploads.set(path, file);
+  if (!previews.has(path)) previews.set(path, URL.createObjectURL(file));
+  return path.slice('news/'.length);
+}
+
+function insertFile(file, caption = '') {
+  const path = addUpload(file);
+  if (!path) return;
+  insertBlock(`![${caption}](${path}${caption ? ` "${caption.replace(/"/g, '')}"` : ''})`);
+}
+
+function referencedUploads(post) {
+  const text = `${post.body}\n${post.thumbnail}`;
+  return [...uploads].filter(([path]) => text.includes(path.slice('news/'.length)));
+}
+
+function listUploads(post) {
+  const files = referencedUploads(post);
+  $('uploads').hidden = !files.length;
+  $('uploads').querySelector('ul').innerHTML = files.map(([path, file]) =>
+    `<li>${escapeHtml(path.slice('news/'.length))}<span>${fileSize(file.size)}</span></li>`).join('');
+}
+
+const fileSize = (bytes) => bytes < 1024 * 1024 ? `${Math.ceil(bytes / 1024)} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+
+function dropZone(el, onFiles) {
+  el.addEventListener('dragover', (e) => {
+    if (![...e.dataTransfer.types].includes('Files')) return;
+    e.preventDefault();
+    el.classList.add('drag');
+  });
+  el.addEventListener('dragleave', () => el.classList.remove('drag'));
+  el.addEventListener('drop', (e) => {
+    el.classList.remove('drag');
+    const files = [...e.dataTransfer.files].filter(file => /^(image|video)\//.test(file.type));
+    if (!files.length) return;
+    e.preventDefault();
+    onFiles(files, e);
+  });
+}
+
+dropZone(body, (files) => files.forEach(file => insertFile(file)));
+body.addEventListener('paste', (e) => {
+  const files = [...e.clipboardData.files].filter(file => /^(image|video)\//.test(file.type));
+  if (!files.length) return;
+  e.preventDefault();
+  files.forEach(file => insertFile(file));
+});
+
+const setThumbnail = (file) => {
+  const path = addUpload(file);
+  if (path) { f.thumbnail.value = path; update(); }
+};
+dropZone($('thumb-drop'), ([file]) => setThumbnail(file));
+$('thumb-drop').addEventListener('click', () => pickFile(setThumbnail, 'image/*'));
+$('thumb-drop').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pickFile(setThumbnail, 'image/*'); }
+});
+
+// ════════ GitHub ════════
+
+async function gh(path, { method = 'GET', body: payload, raw = false } = {}) {
+  const res = await fetch(path.startsWith('https:') ? path : API + path, {
+    method,
+    cache: 'no-store',
+    headers: {
+      Accept: raw ? 'application/vnd.github.raw+json' : 'application/vnd.github+json',
+      Authorization: `Bearer ${token}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
+    },
+    body: payload ? JSON.stringify(payload) : undefined,
+  });
+  if (!res.ok) {
+    const err = new Error((await res.json().catch(() => ({}))).message || res.statusText);
+    err.status = res.status;
+    throw err;
+  }
+  return raw ? res.text() : res.json();
+}
+
+const toBase64 = (blob) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(reader.result.slice(reader.result.indexOf(',') + 1));
+  reader.onerror = () => reject(reader.error);
+  reader.readAsDataURL(blob);
+});
+
+// One commit for the post and all of its files, so the site redeploys once.
+async function commit(message, changes) {
+  for (const c of changes) {
+    if (c.file && !c.sha) {
+      status(`Uploading ${c.path.split('/').pop()}…`);
+      c.sha = (await gh('/git/blobs', { method: 'POST', body: { content: await toBase64(c.file), encoding: 'base64' } })).sha;
+    }
+  }
+  status('Publishing…');
+  for (let attempt = 0; ; attempt++) {
+    const ref = await gh(`/git/ref/heads/${REPO.branch}`);
+    const head = await gh(`/git/commits/${ref.object.sha}`);
+    const tree = await gh('/git/trees', {
+      method: 'POST',
+      body: {
+        base_tree: head.tree.sha,
+        tree: changes.map(c => ({
+          path: c.path, mode: '100644', type: 'blob',
+          ...(c.remove ? { sha: null } : c.sha ? { sha: c.sha } : { content: c.content }),
+        })),
+      },
+    });
+    const next = await gh('/git/commits', { method: 'POST', body: { message, tree: tree.sha, parents: [ref.object.sha] } });
+    try {
+      return await gh(`/git/refs/heads/${REPO.branch}`, { method: 'PATCH', body: { sha: next.sha } });
+    } catch (err) {
+      if (err.status !== 422 || attempt === 2) throw err; // someone pushed in between; go again on top
+    }
+  }
+}
+
+async function connect(candidate) {
+  token = candidate;
+  try {
+    const repo = await gh('');
+    if (!repo.permissions?.push) throw new Error("That account can't write to the website's repository.");
+    const user = await gh('https://api.github.com/user').catch(() => ({ login: 'GitHub' }));
+    store.set(TOKEN_KEY, token);
+    login = user.login;
+    showAccount();
+    return true;
+  } catch (err) {
+    token = store.get(TOKEN_KEY);
+    status({
+      401: "GitHub didn't accept that token. Check you copied all of it, and that it hasn't expired.",
+      404: "That token can't see the website's repository. Make sure pmhinteractive.com is picked under Repository access.",
+    }[err.status] || err.message, true);
+    return false;
+  }
+}
+
+function showAccount() {
+  $('account').textContent = login ? `✓ ${login}` : 'Connect GitHub';
+  $('account').classList.toggle('connected', !!login);
+  $('connect-user').textContent = login || '';
+  $('connect-on').hidden = !login;
+  $('connect-off').hidden = !!login;
+  $('disconnect').hidden = !login;
+  $('connect-go').hidden = !!login;
+  $('delete-post').hidden = !(login && editing);
+}
+
+$('token-link').href = 'https://github.com/settings/personal-access-tokens/new?' + new URLSearchParams({
+  name: 'PMH News Editor',
+  description: 'Publishes news posts from pmhinteractive.com/news/editor.html',
+  target_name: REPO.owner,
+  contents: 'write',
+});
+
+$('account').addEventListener('click', () => {
+  $('token').value = '';
+  const dlg = $('dlg-connect');
+  dlg.returnValue = '';
+  dlg.showModal();
+});
+$('disconnect').addEventListener('click', () => {
+  $('dlg-connect').close();
+  token = login = null;
+  store.set(TOKEN_KEY, null);
+  showAccount();
+  loadPostList();
+  status('Disconnected. The token is gone from this browser. You can delete it on GitHub too.');
+});
+$('dlg-connect').addEventListener('close', async () => {
+  if ($('dlg-connect').returnValue === 'ok' && $('token').value.trim()) {
+    if (await connect($('token').value.trim())) {
+      status('Connected. Publish now goes straight to the site.');
+      loadPostList();
+    }
+  }
+});
+
+// ════════ Publish ════════
+
+$('publish').addEventListener('click', async () => {
+  const post = readForm();
+  const problems = validatePost(post);
+  f.title.classList.toggle('ed-invalid', !post.title);
+  f.body.classList.toggle('ed-invalid', !post.body.trim());
+  if (problems.length) return status(problems.join(' '), true);
+
+  const slug = slugFor(post);
+  const path = `${REPO.posts}/${slug}.md`;
+  const text = serializePost(post);
+  const files = referencedUploads(post);
+
+  if (!token) return publishManually(path, text, files);
+
+  $('publish').disabled = true;
+  try {
+    await commit(`${editing ? 'Update' : 'Post'} news: ${post.title}`, [
+      ...files.map(([p, file]) => ({ path: `pmh-interactive/${p}`, file })),
+      { path, content: text },
+    ]);
+    files.forEach(([p]) => uploads.delete(p));
+    editing = slug;
+    lastSaved = text;
+    showAccount();
+    update();
+    status('');
+    $('done-url').href = $('done-url').textContent = `${SITE_URL}/news/${slug}/`;
+    $('done-actions').href = `${GITHUB}/actions`;
+    $('dlg-done').showModal();
+    loadPostList();
+  } catch (err) {
+    status(`Couldn't publish: ${err.message}`, true);
+  } finally {
+    $('publish').disabled = false;
+  }
+});
+
+async function publishManually(path, text, files) {
+  const [dir, name] = [path.slice(0, path.lastIndexOf('/')), path.slice(path.lastIndexOf('/') + 1)];
+  const copied = await navigator.clipboard?.writeText(text).then(() => true, () => false);
+
+  const url = editing
+    ? `${GITHUB}/edit/${REPO.branch}/${path}`
+    : `${GITHUB}/new/${REPO.branch}/${dir}?` + new URLSearchParams({ filename: name, ...(text.length < 6000 ? { value: text } : {}) });
+  $('manual-post').href = url;
+  $('manual-post').textContent = editing ? 'Open the post on GitHub' : 'Create the post on GitHub';
+  $('manual-paste').textContent = editing
+    ? (copied ? 'The updated post is copied. Select everything in the file, paste over it,' : 'Copy the post from the editor and paste it over everything in the file,')
+    : text.length < 6000 ? 'Everything is filled in for you.' : (copied ? 'The post is copied. Paste it into the empty file,' : 'Copy the post from the editor and paste it into the empty file,');
+
+  $('manual-media').hidden = !files.length;
+  $('manual-upload').href = `${GITHUB}/upload/${REPO.branch}/${REPO.media}`;
+  $('manual-files').innerHTML = files.map(([p, file]) =>
+    `<a href="${previews.get(p)}" download="${escapeHtml(p.split('/').pop())}">${escapeHtml(p.split('/').pop())}</a>`).join(', ');
+
+  $('dlg-manual').showModal();
+}
+
+// ════════ Open / new / delete ════════
+
+async function loadPostList() {
+  let slugs = [];
+  try {
+    slugs = token
+      ? (await gh(`/contents/${REPO.posts}?ref=${REPO.branch}`)).filter(x => x.name.endsWith('.md')).map(x => x.name.slice(0, -3))
+      : (await (await fetch('index.json', { cache: 'no-store' })).json()).map(p => p.slug);
+  } catch { /* nothing published yet, or offline */ }
+  slugs.sort().reverse();
+  $('open-post').innerHTML = '<option value="">Edit a published post…</option>' +
+    slugs.map(s => `<option value="${s}"${s === editing ? ' selected' : ''}>${escapeHtml(s)}</option>`).join('');
+}
+
+$('open-post').addEventListener('change', async (e) => {
+  const slug = e.target.value;
+  if (!slug) return;
+  if (isDirty() && !confirm('Replace what you have in the editor with this post? Your current changes will be lost.')) {
+    e.target.value = editing || '';
+    return;
+  }
+  try {
+    const text = token
+      ? await gh(`/contents/${REPO.posts}/${slug}.md?ref=${REPO.branch}`, { raw: true })
+      : await (await fetch(`posts/${slug}.md`, { cache: 'no-store' })).text();
+    editing = slug;
+    writeForm(parsePost(text));
+    lastSaved = serializePost(readForm());
+    showAccount();
+    status(`Editing ${slug}. Publishing updates the same post.`);
+  } catch (err) {
+    status(`Couldn't open that post: ${err.message}`, true);
+  }
+});
+
+$('new-post').addEventListener('click', () => {
+  if (isDirty() && !confirm('Start a new post? What you have in the editor will be cleared.')) return;
+  editing = null;
+  uploads.clear();
+  writeForm(blank());
+  lastSaved = serializePost(readForm());
+  $('open-post').value = '';
+  showAccount();
+  f.title.focus();
+});
+
+$('delete-post').addEventListener('click', async () => {
+  if (!editing || !confirm(`Delete "${f.title.value || editing}" from the site? This can't be undone from here.`)) return;
+  try {
+    await commit(`Delete news: ${f.title.value || editing}`, [{ path: `${REPO.posts}/${editing}.md`, remove: true }]);
+    status('Deleted. It disappears from the site in about a minute.');
+    editing = null;
+    writeForm(blank());
+    lastSaved = serializePost(readForm());
+    showAccount();
+    loadPostList();
+  } catch (err) {
+    status(`Couldn't delete: ${err.message}`, true);
+  }
+});
+
+window.addEventListener('beforeunload', (e) => {
+  if (referencedUploads(readForm()).length) e.preventDefault();
+});
+
+// ════════ Status ════════
+
+let statusTimer = 0;
+function status(message, isError = false) {
+  const el = $('status');
+  clearTimeout(statusTimer);
+  el.hidden = !message;
+  el.textContent = message;
+  el.classList.toggle('error', isError);
+  if (message && !/…$/.test(message)) statusTimer = setTimeout(() => (el.hidden = true), isError ? 9000 : 5000);
+}
+
+// ════════ Start ════════
+
+const draft = (() => { try { return JSON.parse(store.get(DRAFT_KEY)); } catch { return null; } })();
+editing = draft?.editing || null;
+writeForm(draft?.post ? { ...blank(), ...draft.post } : blank());
+lastSaved = draft?.post ? '' : serializePost(readForm());
+
+if (token) {
+  connect(token).then(ok => { if (!ok) { token = null; showAccount(); } loadPostList(); });
+} else {
+  showAccount();
+  loadPostList();
+}
+</script>
+</body>
+</html>

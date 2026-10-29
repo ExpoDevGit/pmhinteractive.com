@@ -1,7 +1,8 @@
 # PMH Interactive Website — Maintenance Guide
 
-Plain HTML, CSS and JavaScript. No build step, no dependencies — edit a file,
-commit, and GitHub Pages redeploys.
+Plain HTML, CSS and JavaScript. No dependencies — edit a file, commit, and
+GitHub Pages redeploys. The only build step is the news pages, which the deploy
+runs for you (see **News & patch notes**).
 
 ---
 
@@ -12,6 +13,13 @@ pmh-interactive/
 ├── index.html              ← Homepage
 ├── css/style.css           ← The whole design system
 ├── js/main.js              ← Nav, mobile menu, scroll reveal
+├── js/news.js              ← News: games list, platforms, Markdown rules
+├── js/news-feed.js         ← Fills in news cards on the homepage, games pages, etc.
+├── news/
+│   ├── editor.html         ← The post editor (pmhinteractive.com/news/editor.html)
+│   ├── index.html          ← The news page
+│   ├── posts/*.md          ← One file per post
+│   └── media/              ← Images and videos used in posts
 ├── pages/
 │   ├── games.html          ← Full catalog
 │   ├── obsessive-shadow.html ← The Obsessive Shadow franchise page
@@ -122,6 +130,88 @@ The backdrop behind a section is either a video or a still image:
 ```
 
 Add the new section's anchor to the "On This Page" list in the footer.
+
+---
+
+## News & patch notes
+
+### Posting
+
+Open **pmhinteractive.com/news/editor.html** (it isn't linked anywhere on
+the site). Fill in the title, game and the rest, write the post, and press
+**Publish**. The preview on the right shows it exactly as it will look on the site.
+
+The first time, press **Connect GitHub** and follow the four steps in the box.
+After that, **Publish** puts the post and any images you added onto the site in
+one go. It's live about a minute later. The connection is saved in that browser
+only, so do this once on each computer you post from.
+
+- **Edit a published post**: pick it from the drop-down, change it, press Publish.
+- **Images & videos**: drag them into the text box, paste them, or use **Media**.
+  They upload with the post.
+- **YouTube**: use **Media** and paste the link, or put the link on its own line.
+- **Platform icons**: click one in the toolbar, or type `:steam:`, `:ps:` and so on.
+- **Platform-only section**: select the lines and press **Platform Section**.
+- **Draft**: the editor keeps what you're writing even if you close the tab.
+
+### Who can post
+
+Only GitHub accounts with write access to this repository. Anyone can open the
+editor page, but publishing goes through GitHub, which refuses everyone else.
+Manage access in the repo under **Settings → Collaborators**.
+
+### Writing by hand
+
+A post is a Markdown file in `news/posts/`. The file name becomes the address:
+`news/posts/2026-10-28-v2-0-8.md` → `pmhinteractive.com/news/2026-10-28-v2-0-8/`.
+Use lowercase letters, numbers and dashes. The top of the file holds the details:
+
+```
+---
+title: v2.0.8 Is now Live on ALL PLATFORMS!
+game: obsessive-shadow
+type: Patch Notes
+version: 2.0.8
+date: 2026-10-28
+platforms: steam meta playstation
+thumbnail: media/tos-v2-0-8.jpg
+summary: One line for the card and link previews (optional).
+---
+```
+
+`game` is a key from `GAMES` in `js/news.js`. To add a game, add a line
+there. `draft: true` hides a post, and so does starting its file name with `_`.
+
+Paths like `media/shot.jpg` point into `news/media/`; `/images/...` points at
+the site's own images; full `https://` links work everywhere.
+
+| Write | Get |
+|---|---|
+| `## Heading` | Section heading |
+| `**bold**` `*italic*` `~~strike~~` | Text styles |
+| `- item` | Bullet list |
+| `[text](https://…)` | Link |
+| `:steam: :meta: :ps: :xbox: :epic: :pico: :switch: :switch2: :ios: :macos: :android:` | Platform icons (`:quest:` and `:playstation:` work too) |
+| `::: ps xbox` … `:::` | A boxed section for those platforms; `::: ps \| PS5 Only` adds a title |
+| `![caption](media/shot.jpg)` | Image; a `.mp4`/`.webm` file plays as video |
+| A YouTube link on its own line | Embedded player |
+
+### Adding a platform
+
+Drop a white SVG logo into `images/logos/`, add the key and name to
+`PLATFORMS` in `js/news.js`, and add a `.plat-<key>` line next to the others
+in `css/style.css` with its colour.
+
+### How it's built
+
+`tools/build-news.js` runs during deploy. It turns each post into
+`news/<name>/index.html`, with link previews for Discord, X and the like, and
+writes `news/index.json` for the news cards. Those files are generated, so
+they're git-ignored. A post with a mistake in it gets skipped with a warning in
+the Actions log instead of breaking the deploy.
+
+To preview locally with posts: `npm run preview` (needs Node), then open
+http://localhost:8000.
 
 ---
 

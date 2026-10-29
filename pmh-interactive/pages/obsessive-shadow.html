@@ -337,6 +337,12 @@
       .tos-section .tos-copy, .tos-section.flip .tos-copy { order: 2; }
       .art-frame::before { font-size: 7rem; }
     }
+    /* ── Latest news strip ── */
+    .tos-news { background: var(--bg); border-bottom: 1px solid var(--border-dim); padding-top: 5rem; padding-bottom: 5rem; }
+    .tos-news .label { color: var(--ash); }
+    .tos-news .label::before { background: var(--ash); }
+    .tos-news .section-title em { color: var(--ash); }
+
     @media (max-width: 640px) {
       .tos-body { padding: 4rem var(--gutter); gap: 2.25rem; }
       .tos-stores { flex-direction: column; align-items: stretch; }
@@ -357,6 +363,7 @@
     <li><a href="../index.html#about">About</a></li>
     <li><a href="games.html">Games</a></li>
     <li><a href="obsessive-shadow.html">The Obsessive Shadow</a></li>
+    <li><a href="../news/">News</a></li>
     <li><a href="../index.html#socials">Socials</a></li>
     <li><a href="../index.html#contact">Contact</a></li>
     <li><a href="privacy.html">Privacy</a></li>
@@ -368,6 +375,7 @@
   <a href="../index.html#about">About</a>
   <a href="games.html">Games</a>
   <a href="obsessive-shadow.html">The Obsessive Shadow</a>
+  <a href="../news/">News</a>
   <a href="../index.html#socials">Socials</a>
   <a href="../index.html#contact">Contact</a>
   <a href="privacy.html">Privacy</a>
@@ -402,6 +410,22 @@
       <a href="#chapter1" class="btn btn-ash">Explore the Franchise</a>
       <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn btn-outline">Official Merch</a>
     </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════
+     LATEST NEWS
+══════════════════════════════════════════════ -->
+<section class="tos-news" data-news-section>
+  <div class="container">
+    <div class="news-head">
+      <div>
+        <div class="label">Latest From the Franchise</div>
+        <h2 class="section-title">News &amp; <em>Patch Notes</em></h2>
+      </div>
+      <a href="../news/" class="store-btn accent">All News</a>
+    </div>
+    <div class="news-grid" data-news-feed data-limit="3" data-games="obsessive-shadow,obsessive-shadow-2,former-residents,home-invasion,fortnite,monsters-and-mazes"></div>
   </div>
 </section>
 
@@ -449,6 +473,7 @@
           <span class="tri"></span> Watch Trailer
         </a>
         <div class="tos-stores">
+          <a data-news-link="obsessive-shadow" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <a href="https://store.steampowered.com/app/2074360/The_Obsessive_Shadow/" target="_blank" rel="noopener" class="tos-btn">
             <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam
           </a>
@@ -523,6 +548,7 @@
           <span class="tri"></span> Watch Trailer
         </a>
         <div class="tos-stores">
+          <a data-news-link="obsessive-shadow-2" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <a href="https://store.steampowered.com/app/3970390/The_Obsessive_Shadow__Chapter_2/" target="_blank" rel="noopener" class="tos-btn">
             <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam Wishlist
           </a>
@@ -599,6 +625,7 @@
           <span class="tri"></span> Watch the Clickteam Reactor Control Room Episode
         </a>
         <div class="tos-stores">
+          <a data-news-link="former-residents" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <a href="https://store.steampowered.com/app/4923040/The_Obsessive_Shadow_Former_Residents/" target="_blank" rel="noopener" class="tos-btn accent">
             <img src="../images/logos/steam.svg" alt="" class="brand-mark" /> Steam Wishlist
           </a>
@@ -645,6 +672,7 @@
           <span class="tri"></span> Watch Trailer
         </a>
         <div class="tos-stores">
+          <a data-news-link="home-invasion" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <span class="tos-btn disabled">
             <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Store Page — Coming Soon
           </span>
@@ -700,6 +728,7 @@
 
       <div class="tos-actions">
         <div class="tos-stores">
+          <a data-news-link="fortnite" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <a href="https://www.fortnite.com/play/island/3905-4332-3383" target="_blank" rel="noopener" class="tos-btn accent">
             <img src="../images/logos/epicgames.svg" alt="" class="brand-mark" /> Play on Fortnite.com
           </a>
@@ -737,6 +766,7 @@
 
       <div class="tos-actions">
         <div class="tos-stores">
+          <a data-news-link="monsters-and-mazes" class="tos-btn" hidden>Patch Notes &amp; News</a>
           <a href="https://www.meta.com/en-gb/experiences/monsters-and-mazes-toy-factory/9972710149415118/" target="_blank" rel="noopener" class="tos-btn accent">
             <img src="../images/logos/meta.svg" alt="" class="brand-mark" /> Play on Meta Quest
           </a>
@@ -970,6 +1000,7 @@
 </footer>
 
 <script src="../js/main.js"></script>
+<script type="module" src="../js/news-feed.js"></script>
 <script>
   /* ─────────────────────────────────────────────
      Pause ambient videos while off-screen

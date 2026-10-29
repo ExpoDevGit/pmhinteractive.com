@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<!-- Built by tools/build-news.js from news/posts/{{slug}}.md. Edit the post, not this file. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{title}} — {{gameName}}</title>
+  <meta name="description" content="{{summary}}" />
+  <link rel="canonical" href="{{url}}" />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="PMH Interactive" />
+  <meta property="og:title" content="{{title}}" />
+  <meta property="og:description" content="{{summary}}" />
+  <meta property="og:url" content="{{url}}" />
+  <meta property="og:image" content="{{image}}" />
+  <meta property="article:published_time" content="{{date}}" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#00c896" />
+  <link rel="stylesheet" href="../../css/style.css" />
+  <link rel="icon" href="../../images/favicon.ico" />
+</head>
+<body>
+
+<nav id="navbar">
+  <a href="../../index.html" class="nav-logo">
+    <img src="../../PMH_Interactive_ICON_1.png" alt="" class="nav-logo-img" />
+    PMH <span>&nbsp;Interactive</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="../../index.html#about">About</a></li>
+    <li><a href="../../pages/games.html">Games</a></li>
+    <li><a href="../../pages/obsessive-shadow.html">The Obsessive Shadow</a></li>
+    <li><a href="../" class="current">News</a></li>
+    <li><a href="../../index.html#socials">Socials</a></li>
+    <li><a href="../../index.html#contact">Contact</a></li>
+    <li><a href="../../pages/privacy.html">Privacy</a></li>
+    <li><a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="btn-merch">Merch</a></li>
+  </ul>
+  <div class="hamburger" aria-label="Toggle menu" role="button" tabindex="0"><span></span><span></span><span></span></div>
+</nav>
+<div class="mobile-menu">
+  <a href="../../index.html#about">About</a>
+  <a href="../../pages/games.html">Games</a>
+  <a href="../../pages/obsessive-shadow.html">The Obsessive Shadow</a>
+  <a href="../">News</a>
+  <a href="../../index.html#socials">Socials</a>
+  <a href="../../index.html#contact">Contact</a>
+  <a href="../../pages/privacy.html">Privacy</a>
+  <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener" class="merch-link">Merch</a>
+</div>
+
+<article class="post">
+  <header class="post-header">
+    <div class="post-header-bg" style="background-image:url('{{thumbnail}}');"></div>
+    <div class="post-header-inner">
+      <a href="../" class="post-back">All News</a>
+      <div class="post-eyebrow">
+        <span class="post-type">{{typeLabel}}</span>
+        <a href="../../{{gamePage}}">{{gameName}}</a>
+        <time datetime="{{date}}">{{dateLabel}}</time>
+      </div>
+      <h1 class="post-title">{{title}}</h1>
+      {{platforms}}
+    </div>
+  </header>
+
+  <div class="post-wrap">
+    <img src="{{thumbnail}}" alt="" class="post-banner" />
+    <div class="post-body">
+{{body}}
+    </div>
+    <div class="post-foot">
+      <a href="../" class="store-btn">All News</a>
+      <a href="../?game={{game}}" class="store-btn accent">More {{gameName}} News</a>
+    </div>
+  </div>
+</article>
+
+{{more}}
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo-row">
+          <img src="../../PMH_Interactive_ICON_1.png" alt="" class="footer-logo-img" />
+          <div class="footer-logo-name">PMH <span>Interactive</span></div>
+        </div>
+        <p>Independent game studio crafting immersive horror and VR experiences.</p>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/expodevig" target="_blank" rel="noopener"><img src="../../images/logos/instagram.svg" alt="Instagram" class="brand-mark" /></a>
+          <a href="https://www.twitter.com/pmhinteractive" target="_blank" rel="noopener"><img src="../../images/logos/x.svg" alt="Twitter / X" class="brand-mark" /></a>
+          <a href="https://youtube.com/@ExpoDev" target="_blank" rel="noopener"><img src="../../images/logos/youtube.svg" alt="YouTube" class="brand-mark" /></a>
+          <a href="https://tiktok.com/@expodev" target="_blank" rel="noopener"><img src="../../images/logos/tiktok.svg" alt="TikTok" class="brand-mark" /></a>
+          <a href="https://discord.gg/FxBXv5bDPJ" target="_blank" rel="noopener"><img src="../../images/logos/discord.svg" alt="Discord" class="brand-mark" /></a>
+        </div>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Navigate</h4>
+          <a href="../../index.html">Home</a>
+          <a href="../../pages/games.html">Games</a>
+          <a href="../">News</a>
+        </div>
+        <div class="footer-col">
+          <h4>Franchise</h4>
+          <a href="../../pages/obsessive-shadow.html">The Obsessive Shadow</a>
+          <a href="../../pages/obsessive-shadow.html#arcade">VR Arcades</a>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <a href="http://obsessive-shadow-shop.fourthwall.com" target="_blank" rel="noopener">Merch Store</a>
+        </div>
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="../../pages/privacy.html">Privacy Policy</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2025&ndash;2026 PMH Interactive (Pablo Heckman). All rights reserved.</span>
+      <a href="../../pages/privacy.html">Privacy Policy</a>
+    </div>
+  </div>
+</footer>
+
+<script src="../../js/main.js"></script>
+</body>
+</html>
