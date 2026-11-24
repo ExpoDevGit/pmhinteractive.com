@@ -17,8 +17,8 @@ export const REPO = {
 // The client ID is meant to be public. The client secret lives only in the
 // Cloudflare Worker (tools/news-auth-worker.js), never here.
 export const EDITOR_AUTH = {
-  clientId: '',   // the GitHub App's Client ID, e.g. 'Iv23li…'
-  tokenUrl: '',   // the Worker's address, e.g. 'https://pmh-news-auth.yourname.workers.dev'
+  clientId: 'Iv23liOOtePVAwLYLq9V',
+  tokenUrl: 'https://pmh-news-auth.expogamer5000.workers.dev',
 };
 
 // The key is what goes in a post's `game:` line. Paths are from the site root.
