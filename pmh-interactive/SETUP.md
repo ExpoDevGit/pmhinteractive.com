@@ -1,6 +1,6 @@
-# PMH Interactive Website — Maintenance Guide
+# PMH Interactive Website - Maintenance Guide
 
-Plain HTML, CSS and JavaScript. No dependencies — edit a file, commit, and
+Plain HTML, CSS and JavaScript. No dependencies - edit a file, commit, and
 GitHub Pages redeploys. The only build step is the news pages, which the deploy
 runs for you (see **News & patch notes**).
 
@@ -49,7 +49,7 @@ everywhere.
 | UI | Inter | Buttons, nav, labels, tags, eyebrows |
 
 The Obsessive Shadow page adds **VCR OSD Mono** on top of this, used only for
-eyebrows, status pills and small labels — that's the VHS accent voice. Body copy
+eyebrows, status pills and small labels - that's the VHS accent voice. Body copy
 and headings there use the same two fonts as the rest of the site.
 
 **Color**
@@ -57,7 +57,7 @@ and headings there use the same two fonts as the rest of the site.
 All colors are variables at the top of `css/style.css`:
 
 ```css
---teal:   #00c896;   /* accent — buttons, links, highlights */
+--teal:   #00c896;   /* accent - buttons, links, highlights */
 --bg:     #0e0e0e;   /* page background */
 --bg2:    #141414;   /* alternating section background */
 --surface:#1a1a1a;   /* cards and rows */
@@ -65,17 +65,17 @@ All colors are variables at the top of `css/style.css`:
 
 The Obsessive Shadow page defines three extra accents in its own `<style>`
 block: `--ash` (periwinkle), `--red` (Chapter 2) and `--ice` (Fortnite). Each
-section picks one with a class — `.red`, `.ice`, `.teal` — and everything inside
+section picks one with a class - `.red`, `.ice`, `.teal` - and everything inside
 it (tags, borders, buttons, headings) follows automatically.
 
-**Spacing** — `--wrap` (1280px content width), `--gutter` (page side padding)
+**Spacing** - `--wrap` (1280px content width), `--gutter` (page side padding)
 and `--nav-h` (navbar height) are set once and used everywhere.
 
 ---
 
 ## Logos
 
-`images/logos/` holds the real brand marks as SVG files — Steam, PlayStation,
+`images/logos/` holds the real brand marks as SVG files - Steam, PlayStation,
 Xbox, Meta, Epic Games, Spotify, Apple Music, YouTube Music, YouTube, Instagram,
 X, TikTok, Discord. They're filled white so they read on the dark background.
 
@@ -111,9 +111,9 @@ Badges: `live` (teal), `demo` (amber), `soon` (outline), `partner` (purple).
 Open `pages/obsessive-shadow.html` and copy a `<section class="tos-section">`
 block. Each one takes:
 
-- `alt` — use the darker alternating background
-- `flip` — put the artwork on the right instead of the left
-- `red` / `ice` / `teal` — swap the accent color (default is periwinkle)
+- `alt` - use the darker alternating background
+- `flip` - put the artwork on the right instead of the left
+- `red` / `ice` / `teal` - swap the accent color (default is periwinkle)
 
 The backdrop behind a section is either a video or a still image:
 
@@ -278,7 +278,7 @@ Drop an `.mp4` in the `pmh-interactive/` root and point a `<source>` at it.
 | `tos-fortnite-bg.mp4` | Fortnite |
 | `tos-film-bg.mp4` | Short film |
 
-Keep them short and compressed — they autoplay muted and loop, and they pause
+Keep them short and compressed - they autoplay muted and loop, and they pause
 automatically while off-screen. If a file is missing the section still renders
 correctly, just without motion behind it.
 
@@ -287,7 +287,7 @@ correctly, just without motion behind it.
 ## Images
 
 Cover art works best in portrait; section stills and screenshots in 16:9.
-Anything much over ~500KB is worth compressing first — these load on phones.
+Anything much over ~500KB is worth compressing first - these load on phones.
 
 ---
 
@@ -309,6 +309,6 @@ python3 -m http.server 8000
 ## Accessibility notes
 
 - The mobile menu opens with click, Enter or Space, and closes on Escape.
-- All motion respects `prefers-reduced-motion` — the scroll reveals, the VHS
+- All motion respects `prefers-reduced-motion` - the scroll reveals, the VHS
   grain and the scan bar all switch off.
 - Decorative images use `alt=""`; meaningful ones carry a real description.

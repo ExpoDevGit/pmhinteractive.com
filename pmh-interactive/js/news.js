@@ -1,5 +1,5 @@
 // ════════════════════════════════════════════════════════════
-// NEWS — shared by the site, the post editor and tools/build-news.js.
+// NEWS - shared by the site, the post editor and tools/build-news.js.
 // No DOM or Node APIs in here, so all three can import it as-is.
 // ════════════════════════════════════════════════════════════
 
@@ -24,7 +24,7 @@ export const EDITOR_AUTH = {
 // The key is what goes in a post's `game:` line. Paths are from the site root.
 export const GAMES = {
   'obsessive-shadow':   { name: 'The Obsessive Shadow',                     page: 'pages/obsessive-shadow.html#chapter1',           art: 'images/tos1-cover.jpg' },
-  'obsessive-shadow-2': { name: 'The Obsessive Shadow — Chapter 2',         page: 'pages/obsessive-shadow.html#chapter2',           art: 'images/tos2-cover.jpg' },
+  'obsessive-shadow-2': { name: 'The Obsessive Shadow - Chapter 2',         page: 'pages/obsessive-shadow.html#chapter2',           art: 'images/tos2-cover.jpg' },
   'former-residents':   { name: 'The Obsessive Shadow: Former Residents',   page: 'pages/obsessive-shadow.html#former-residents',   art: 'images/tos-former-residents.jpg' },
   'home-invasion':      { name: 'The Obsessive Shadow: Home Invasion',      page: 'pages/obsessive-shadow.html#mixed-reality',      art: 'images/tos-mr-home-invasion.jpg' },
   'monsters-and-mazes': { name: 'The Obsessive Shadow × Monsters and Mazes', page: 'pages/obsessive-shadow.html#monsters-and-mazes', art: 'images/tos-monsters-mazes.jpg' },
