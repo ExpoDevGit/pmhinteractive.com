@@ -24,7 +24,7 @@
     }
 
     /* ── Background scene ── */
-    /* FILE: images/countdown-bg.jpg — your pre-rendered room/environment */
+    /* FILE: images/countdown-bg.jpg - your pre-rendered room/environment */
     #env-bg {
       position: fixed;
       inset: 0;
@@ -34,7 +34,7 @@
       background-position: center;
     }
 
-    /* ── TV on image — visible by default ── */
+    /* ── TV on image - visible by default ── */
     /* FILE: images/countdown-tv-on.png */
     #tv-layer {
       position: fixed;
@@ -256,7 +256,7 @@
     ── */
     function primeVideo() {
       if (videoReady) return;
-      // Play muted for one frame then pause — this registers a user-gesture
+      // Play muted for one frame then pause - this registers a user-gesture
       // association on the video element in most browsers.
       finalVideo.muted  = true;
       finalVideo.volume = 0;
@@ -306,10 +306,10 @@
 
       if (playAttempt !== undefined) {
         playAttempt.then(() => {
-          // Playing fine — ensure unmuted
+          // Playing fine - ensure unmuted
           finalVideo.muted = false;
         }).catch(() => {
-          // Blocked — try muted fallback then unmute
+          // Blocked - try muted fallback then unmute
           finalVideo.muted = true;
           finalVideo.play().then(() => {
             finalVideo.muted = false;
