@@ -123,6 +123,15 @@
       width: 100%; height: 100%; object-fit: cover;
       opacity: 0.35;
     }
+    /* Crop baked-in black bars on Monsters and Mazes background video */
+    #monsters-and-mazes .tos-bg {
+      inset: -12%;
+      width: 124%;
+      height: 124%;
+      max-width: none;
+      max-height: none;
+      object-fit: cover;
+    }
     .tos-bg-img {
       position: absolute; inset: 0; z-index: 0;
       background-size: cover; background-position: center;
@@ -747,6 +756,11 @@
      MONSTERS AND MAZES CROSSOVER
 ══════════════════════════════════════════════ -->
 <section class="tos-section alt flip" id="monsters-and-mazes">
+  <video class="tos-bg" autoplay muted loop playsinline preload="none">
+    <source src="../tos_mm_websitefootage.mp4" type="video/mp4" />
+  </video>
+  <div class="tos-bg-fade"></div>
+
   <div class="tos-body">
     <div class="tos-copy reveal">
       <div class="tos-eyebrow">Crossover // Meta Quest</div>
